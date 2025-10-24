@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reaction Time Session Data</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      font-family: 'Rubik', system-ui, sans-serif;
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #f4f6fb;
+      --text: #1a2233;
+      --subtle-text: #4a5468;
+      --border-soft: rgba(10, 29, 73, 0.12);
+      --surface-shadow: rgba(17, 27, 64, 0.08);
+      --header-bg: rgba(255, 255, 255, 0.88);
+      --accent: #2ddc6a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-soft);
+      background: var(--header-bg);
+      backdrop-filter: blur(12px);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 2vw + 1rem, 2.4rem);
+    }
+
+    main {
+      flex: 1;
+      padding: clamp(1rem, 3vw, 2rem);
+      display: grid;
+      gap: 1.5rem;
+      max-width: 960px;
+      width: min(960px, 100%);
+      margin: 0 auto;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .card {
+      background: var(--panel);
+      border-radius: 18px;
+      padding: clamp(1.25rem, 3vw, 2rem);
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 18px 36px var(--surface-shadow);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.75rem;
+      color: var(--text);
+    }
+
+    th, td {
+      padding: 0.6rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-soft);
+      font-size: 0.95rem;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    select, button {
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 0.7rem 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+      background: #ffffff;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0.7rem 1.4rem;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #021507;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 12px 24px rgba(45, 220, 106, 0.25);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .summary-grid {
+      display: grid;
+      gap: 0.75rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .summary-box {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 1rem;
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 10px 18px rgba(13, 31, 71, 0.06);
+    }
+
+    .summary-box h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--subtle-text);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .summary-box p {
+      margin: 0.35rem 0 0;
+      font-size: 1.35rem;
+      font-weight: 600;
+    }
+
+    .muted {
+      color: var(--subtle-text);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    footer {
+      padding: 1.25rem;
+      border-top: 1px solid var(--border-soft);
+      background: var(--header-bg);
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--subtle-text);
+    }
+
+    a { color: var(--accent); }
+
+    .session-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      border: 1px dashed var(--border-soft);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    @media (max-width: 600px) {
+      .session-selector { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Stored Reaction Time Sessions</h1>
+  </header>
+  <main>
+    <section class="card">
+      <div class="session-selector">
+        <label for="sessionSelect">Select session:</label>
+        <select id="sessionSelect" aria-label="Choose a recorded session"></select>
+        <button id="clearButton" type="button">Clear all data</button>
+        <a class="btn" href="index.html">Run new trials</a>
+      </div>
+      <p class="muted" id="sessionMeta"></p>
+      <div class="summary-grid" id="summaryGrid"></div>
+    </section>
+    <section class="card" id="tablesSection">
+      <h2>Per-Set Trial Tables</h2>
+      <div id="tables"></div>
+    </section>
+    <section class="card hidden" id="emptyState">
+      <div class="empty-state">
+        <h2>No sessions yet</h2>
+        <p class="muted">Run the experiment from <a href="index.html">the tester page</a>. Completed sessions automatically save to this device.</p>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <span>Data stays in this browser only. Export by copying tables into your lab notes.</span>
+  </footer>
+  <script>
+    const STORAGE_KEY = 'reactionTimeSessions-v2';
+    const select = document.getElementById('sessionSelect');
+    const tables = document.getElementById('tables');
+    const summaryGrid = document.getElementById('summaryGrid');
+    const sessionMeta = document.getElementById('sessionMeta');
+    const emptyState = document.getElementById('emptyState');
+    const tablesSection = document.getElementById('tablesSection');
+    const clearButton = document.getElementById('clearButton');
+    const NOTE_LOOKUP = {
+      baseline: 'No distractions. Focus on reacting to green with the J key only.',
+      'letter-x': 'Letter X appears randomly — press F to dismiss it. Reaction timing still only counts the J key.',
+      progress: 'Letter X distraction plus a filling progress bar. Press F to clear the X and Space to push the bar back.',
+      celebration: 'Letter X, progress bar, and rainbow confetti all at once. Only the J key after green is recorded.',
+    };
+
+    function formatMs(ms) {
+      return `${ms.toFixed(1)} ms`;
+    }
+
+    function normalizeSession(session) {
+      if (session?.sets) {
+        return {
+          timestamp: session.timestamp || new Date().toISOString(),
+          overallAverage: typeof session.overallAverage === 'number' ? session.overallAverage : null,
+          sets: session.sets.map(set => ({
+            id: set.id || crypto.randomUUID?.() || Math.random().toString(36).slice(2),
+            name: set.name || 'Unnamed Set',
+            note: typeof set.note === 'string' ? set.note : '',
+            trials: Array.isArray(set.trials) ? set.trials : [],
+            average: typeof set.average === 'number' ? set.average : null,
+          })),
+        };
+      }
+      if (Array.isArray(session?.trials)) {
+        const average = session.average ?? (session.trials.length ? session.trials.reduce((a, b) => a + b, 0) / session.trials.length : 0);
+        return {
+          timestamp: session.timestamp || new Date().toISOString(),
+          sets: [
+            {
+              id: 'legacy',
+              name: 'Legacy Session',
+              note: 'Imported from an earlier single-set run.',
+              trials: session.trials,
+              average,
+            }
+          ],
+          overallAverage: average,
+        };
+      }
+      return null;
+    }
+
+    function loadSessions() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return [];
+        const parsed = JSON.parse(stored);
+        const normalized = parsed
+          .map(normalizeSession)
+          .filter(Boolean);
+        return normalized;
+      } catch (error) {
+        console.error('Unable to parse stored sessions', error);
+        return [];
+      }
+    }
+
+    function populateSelect(sessions) {
+      select.innerHTML = '';
+      sessions.forEach((session, index) => {
+        const option = document.createElement('option');
+        const time = new Date(session.timestamp);
+        option.value = index;
+        const totalTrials = session.sets.reduce((sum, set) => sum + (set.trials?.length || 0), 0);
+        const overall = totalTrials ? (session.overallAverage ?? computeOverall(session)) : null;
+        const labelAverage = overall ? formatMs(overall) : 'No data yet';
+        option.textContent = `${time.toLocaleString()} — ${labelAverage}`;
+        select.appendChild(option);
+      });
+      if (sessions.length) {
+        select.value = '0';
+      }
+    }
+
+    function renderSession(session) {
+      if (!session) {
+        tablesSection.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        sessionMeta.textContent = '';
+        summaryGrid.innerHTML = '';
+        tables.innerHTML = '';
+        return;
+      }
+      tablesSection.classList.remove('hidden');
+      emptyState.classList.add('hidden');
+
+      const time = new Date(session.timestamp);
+      const totalTrials = session.sets.reduce((sum, set) => sum + (set.trials?.length || 0), 0);
+      const overall = totalTrials ? (session.overallAverage ?? computeOverall(session)) : null;
+      const overallLabel = overall ? formatMs(overall) : 'No data yet';
+      sessionMeta.textContent = `Recorded ${time.toLocaleString()} · Overall average ${overallLabel}`;
+
+      summaryGrid.innerHTML = '';
+      const setsCompleted = session.sets.filter(set => set.trials?.length).length;
+      const summaryData = [
+        { label: 'Sets Completed', value: `${setsCompleted} / ${session.sets.length}` },
+        { label: 'Total Trials', value: totalTrials },
+        { label: 'Overall Average', value: overall ? formatMs(overall) : 'No data yet' }
+      ];
+      summaryData.forEach(item => {
+        const box = document.createElement('div');
+        box.className = 'summary-box';
+        box.innerHTML = `<h3>${item.label}</h3><p>${item.value}</p>`;
+        summaryGrid.appendChild(box);
+      });
+
+      tables.innerHTML = '';
+      session.sets.forEach((set, idx) => {
+        const section = document.createElement('section');
+        section.className = 'card';
+        const heading = document.createElement('h3');
+        heading.textContent = set.name;
+        section.appendChild(heading);
+        const averageLine = document.createElement('p');
+        averageLine.className = 'muted';
+        const average = (typeof set.average === 'number' ? set.average : null) ?? (set.trials.length ? (set.trials.reduce((a, b) => a + b, 0) / set.trials.length) : null);
+        averageLine.textContent = average ? `Average: ${formatMs(average)}` : 'No data recorded';
+        section.appendChild(averageLine);
+        const noteText = set.note || NOTE_LOOKUP[set.id];
+        if (noteText) {
+          const noteLine = document.createElement('p');
+          noteLine.className = 'muted';
+          noteLine.textContent = `Notes: ${noteText}`;
+          section.appendChild(noteLine);
+        }
+        if (set.trials.length) {
+          const table = document.createElement('table');
+          const thead = document.createElement('thead');
+          thead.innerHTML = '<tr><th>Trial</th><th>Reaction Time</th></tr>';
+          const tbody = document.createElement('tbody');
+          set.trials.forEach((time, trialIdx) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${trialIdx + 1}</td><td>${formatMs(time)}</td>`;
+            tbody.appendChild(row);
+          });
+          table.appendChild(thead);
+          table.appendChild(tbody);
+          section.appendChild(table);
+        }
+        tables.appendChild(section);
+      });
+    }
+
+    function computeOverall(session) {
+      const total = session.sets.reduce((sum, set) => sum + (set.trials?.reduce((a, b) => a + b, 0) || 0), 0);
+      const count = session.sets.reduce((sum, set) => sum + (set.trials?.length || 0), 0);
+      return count ? total / count : 0;
+    }
+
+    function refresh() {
+      const sessions = loadSessions();
+      if (!sessions.length) {
+        select.classList.add('hidden');
+        clearButton.classList.add('hidden');
+        renderSession(null);
+        return;
+      }
+      select.classList.remove('hidden');
+      clearButton.classList.remove('hidden');
+      populateSelect(sessions);
+      const index = Number(select.value) || 0;
+      renderSession(sessions[index]);
+    }
+
+    select.addEventListener('change', () => {
+      const sessions = loadSessions();
+      const index = Number(select.value);
+      renderSession(sessions[index]);
+    });
+
+    clearButton.addEventListener('click', () => {
+      if (confirm('Remove all stored sessions from this browser?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        refresh();
+      }
+    });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(err => console.error('SW registration failed', err));
+      });
+    }
+
+    refresh();
+  </script>
+</body>
+</html>
