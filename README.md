@@ -10,6 +10,7 @@ A self-contained reaction time tester for sports science experiments. The app ru
   3. **Progress Bar Game** – repeat the X task and tap **Space** to knock back a filling bar.
   4. **Rainbow Confetti Finale** – all distractions together plus celebratory confetti and a rainbow theme that never turns green (so the go signal remains distinct).
 - Six trials per set with automatic averages and a per-set data table on the tester page.
+- Bright, low-distraction default styling so lab participants view a neutral white background until the go signal turns the screen green.
 - Splash instructions before each block so participants understand the current distractions.
 - Local storage of the most recent sessions for later review on a dedicated data page.
 - Tables record which distractions were active in each set so observations remain clear during analysis.
@@ -36,6 +37,18 @@ A self-contained reaction time tester for sports science experiments. The app ru
 2. In the repository settings, enable GitHub Pages for the branch and root directory.
 3. After Pages finishes building, visit the published URL (typically `https://<username>.github.io/<repository>/`).
 4. Load both `index.html` and `data.html` once while online so the service worker can cache assets. Afterwards the tester will continue working offline on that device.
+
+### GitHub Pages deployment checklist
+
+If the site doesn’t appear after a merge, walk through this sequence in the GitHub web UI:
+
+1. **Confirm the target** – open **Settings → Pages** and ensure “Source” is set to *Deploy from a branch*, the branch matches your production branch (usually `main`), and the folder is set to `/` unless you are serving from `/docs`.
+2. **Verify a build ran** – in **Actions**, look for a fresh “pages build and deployment” run at the time of your push. If it failed, open the run and choose **Re-run all jobs** after resolving any issues noted at the top of the log.
+3. **Check the branch contents** – on GitHub, browse the branch you are deploying from and confirm that `index.html`, `data.html`, and `sw.js` live in the folder selected for Pages.
+4. **Confirm the URL** – copy the link shown in **Settings → Pages**. For project sites the format is `https://<username>.github.io/<repo-name>/`; for user sites it is `https://<username>.github.io/`.
+5. **Save configuration changes** – if the Save button was previously greyed out, re-select both the branch and folder in **Settings → Pages** so the Save button activates, then click it.
+6. **Force a rebuild** – either toggle the Pages source to “GitHub Actions” and back to “Deploy from a branch” (re-selecting branch and folder each time) or open the latest “pages build and deployment” run in **Actions** and choose **Re-run all jobs**.
+7. **Review common blockers** – Pages will not deploy if it points to the wrong branch or folder, if no `index.html` exists in that folder, or if a custom domain/DNS is misconfigured. Plain static files at the repository root avoid Jekyll’s `_`-prefixed folder exclusions.
 
 The service worker caches the HTML files and assets at scope. If you change any HTML, CSS, or JavaScript later, bump the `CACHE_VERSION` constant in `sw.js` before redeploying to force browsers to refresh their caches.
 
