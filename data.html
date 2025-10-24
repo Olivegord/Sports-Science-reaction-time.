@@ -18,6 +18,10 @@
       --border-soft: rgba(10, 29, 73, 0.12);
       --surface-shadow: rgba(17, 27, 64, 0.08);
       --header-bg: rgba(255, 255, 255, 0.88);
+      color-scheme: light dark;
+      --bg: #0d101d;
+      --panel: rgba(17, 21, 36, 0.92);
+      --text: #f5f7ff;
       --accent: #2ddc6a;
     }
 
@@ -27,6 +31,7 @@
       margin: 0;
       min-height: 100vh;
       background: var(--bg);
+      background: radial-gradient(circle at top, #1c2135, var(--bg));
       color: var(--text);
       display: flex;
       flex-direction: column;
@@ -36,6 +41,8 @@
       padding: 1.5rem;
       border-bottom: 1px solid var(--border-soft);
       background: var(--header-bg);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(9, 12, 23, 0.85);
       backdrop-filter: blur(12px);
     }
 
@@ -64,6 +71,37 @@
       padding: clamp(1.25rem, 3vw, 2rem);
       border: 1px solid var(--border-soft);
       box-shadow: 0 18px 36px var(--surface-shadow);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.35);
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reaction Time Data</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #f5f5f5;
+      color: #222;
+    }
+
+    main {
+      max-width: 720px;
+      width: 100%;
+      padding: 2rem;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: clamp(2rem, 4vw, 3rem);
+      text-align: center;
     }
 
     table {
@@ -77,6 +115,7 @@
       padding: 0.6rem 0.75rem;
       text-align: left;
       border-bottom: 1px solid var(--border-soft);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       font-size: 0.95rem;
     }
 
@@ -91,6 +130,8 @@
       border-radius: 12px;
       border: 1px solid var(--border-soft);
       background: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
       color: var(--text);
       cursor: pointer;
     }
@@ -125,12 +166,17 @@
       padding: 1rem;
       border: 1px solid var(--border-soft);
       box-shadow: 0 10px 18px rgba(13, 31, 71, 0.06);
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .summary-box h3 {
       margin: 0;
       font-size: 1rem;
       color: var(--subtle-text);
+      color: rgba(255, 255, 255, 0.7);
       text-transform: uppercase;
       letter-spacing: 0.08em;
     }
@@ -143,6 +189,7 @@
 
     .muted {
       color: var(--subtle-text);
+      color: rgba(255, 255, 255, 0.65);
       font-size: 0.95rem;
       line-height: 1.5;
     }
@@ -154,6 +201,11 @@
       text-align: center;
       font-size: 0.9rem;
       color: var(--subtle-text);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(9, 12, 23, 0.85);
+      text-align: center;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
     }
 
     a { color: var(--accent); }
@@ -171,10 +223,45 @@
       border: 1px dashed var(--border-soft);
       border-radius: 18px;
       background: rgba(255, 255, 255, 0.6);
+      border: 1px dashed rgba(255, 255, 255, 0.25);
+      border-radius: 18px;
     }
 
     @media (max-width: 600px) {
       .session-selector { flex-direction: column; align-items: stretch; }
+      margin-top: 1.5rem;
+      background-color: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+    }
+
+    th, td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      text-align: left;
+    }
+
+    th {
+      background-color: rgba(30, 144, 255, 0.15);
+    }
+
+    caption {
+      caption-side: bottom;
+      padding: 0.5rem;
+      font-size: 0.9rem;
+      color: rgba(0, 0, 0, 0.65);
+    }
+
+    .empty-state {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 1.5rem;
+      text-decoration: none;
+      color: #1e90ff;
     }
   </style>
 </head>
@@ -402,6 +489,67 @@
     }
 
     refresh();
+  <main>
+    <h1>Reaction Time Session Data</h1>
+    <div id="table-container" class="empty-state">Loading...</div>
+    <div style="text-align: center;"><a href="index.html">Back to tester</a></div>
+  </main>
+  <script>
+    function createTable(session) {
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      ['Trial', 'Reaction time (ms)'].forEach((heading) => {
+        const th = document.createElement('th');
+        th.textContent = heading;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      session.trials.forEach((time, index) => {
+        const row = document.createElement('tr');
+        const trialCell = document.createElement('td');
+        trialCell.textContent = index + 1;
+        const timeCell = document.createElement('td');
+        timeCell.textContent = time.toFixed(1);
+        row.appendChild(trialCell);
+        row.appendChild(timeCell);
+        tbody.appendChild(row);
+      });
+      table.appendChild(tbody);
+
+      const caption = document.createElement('caption');
+      const recordedDate = new Date(session.recordedAt);
+      caption.textContent = `Recorded ${recordedDate.toLocaleString()} • Average reaction time: ${session.average.toFixed(1)} ms`;
+      table.appendChild(caption);
+      return table;
+    }
+
+    function loadSession() {
+      try {
+        const raw = localStorage.getItem('reactionTimeSession');
+        if (!raw) {
+          return null;
+        }
+        return JSON.parse(raw);
+      } catch (error) {
+        console.error('Failed to parse stored session', error);
+        return null;
+      }
+    }
+
+    const container = document.getElementById('table-container');
+    const session = loadSession();
+    if (!session || !Array.isArray(session.trials) || session.trials.length === 0) {
+      container.textContent = 'No session data found yet. Run a reaction time test to record results.';
+      container.classList.add('empty-state');
+    } else {
+      container.classList.remove('empty-state');
+      container.innerHTML = '';
+      container.appendChild(createTable(session));
+    }
   </script>
 </body>
 </html>
