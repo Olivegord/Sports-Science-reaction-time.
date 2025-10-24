@@ -31,3 +31,5 @@ This repository hosts a lightweight, offline-friendly reaction time tester with 
 7. Visit the published URL once while online so the service worker can cache the assets. Subsequent visits will work offline.
 
 The `index.html`, `data.html`, and `sw.js` files are all that GitHub Pages needs; no build or bundling step is required.
+
+> **Note:** The service worker uses a shared version string (`2024-05-08`) in both HTML pages and `sw.js`. Update that value across all three files whenever you want browsers to refresh their cached assets.

@@ -299,6 +299,7 @@
   </main>
   <script>
     const trialsPerSet = 6;
+    const swVersion = '2024-05-08';
 
     const randomDelay = (min, max) => Math.random() * (max - min) + min;
 
@@ -674,7 +675,8 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch((error) => {
+        const swUrl = `sw.js?v=${encodeURIComponent(swVersion)}`;
+        navigator.serviceWorker.register(swUrl).catch((error) => {
           console.error('Service worker registration failed', error);
         });
       });

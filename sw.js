@@ -1,4 +1,5 @@
-const CACHE_NAME = 'reaction-time-tool-v1';
+const CACHE_VERSION = '2024-05-08';
+const CACHE_NAME = `reaction-time-tool-${CACHE_VERSION}`;
 const ASSETS = [
   './',
   './index.html',
@@ -29,15 +30,24 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  const { request } = event;
+  if (request.cache === 'only-if-cached' && request.mode !== 'same-origin') {
+    return;
+  }
+  const isSameOrigin = new URL(request.url, self.location.origin).origin === self.location.origin;
+
   event.respondWith(
-    caches.match(event.request).then((cached) => {
+    caches.match(request).then((cached) => {
       if (cached) {
         return cached;
       }
-      return fetch(event.request)
+
+      return fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          if (isSameOrigin && response.status === 200) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
           return response;
         })
         .catch(() => caches.match('./index.html'));

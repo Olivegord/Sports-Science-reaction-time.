@@ -102,6 +102,8 @@
     <a href="index.html">Back to tester</a>
   </main>
   <script>
+    const swVersion = '2024-05-08';
+
     const loadSession = () => {
       try {
         const raw = window.localStorage.getItem('reactionTimeSession');
@@ -203,7 +205,8 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch((error) => {
+        const swUrl = `sw.js?v=${encodeURIComponent(swVersion)}`;
+        navigator.serviceWorker.register(swUrl).catch((error) => {
           console.error('Service worker registration failed', error);
         });
       });
