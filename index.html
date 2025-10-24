@@ -1,6 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reaction Time Distraction Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: 'Rubik', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --bg-default: #11131d;
+      --bg-panel: #1d2233;
+      --text: #f5f7ff;
+      --accent: #2ddc6a;
+      --warn: #ffb347;
+      --progress: #ff5fa2;
+    }
+
+    * {
+      box-sizing: border-box;
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reaction Time Tester</title>
@@ -15,6 +35,215 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      background: radial-gradient(circle at top, #20263a, var(--bg-default));
+      color: var(--text);
+    }
+
+    body.ready-for-go {
+      background: #0b441b;
+      transition: background 120ms linear;
+    }
+
+    body.rainbow-mode {
+      background: linear-gradient(120deg, #ff0055, #ff8a00, #ffd200, #8a2be2, #ff0055);
+      background-size: 300% 300%;
+      animation: rainbowShift 12s linear infinite;
+    }
+
+    body.rainbow-mode.ready-for-go {
+      background: #0a7f2c;
+    }
+
+    @keyframes rainbowShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    header, footer {
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header {
+      background: rgba(10, 13, 25, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    h1 {
+      font-size: clamp(1.4rem, 2vw + 1rem, 2.2rem);
+      margin: 0;
+    }
+
+    main {
+      flex: 1;
+      display: grid;
+      gap: 1.5rem;
+      padding: 1.5rem;
+    }
+
+    .card {
+      background: rgba(16, 22, 36, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 1.75rem;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .status {
+      font-size: clamp(1.1rem, 1vw + 1rem, 1.4rem);
+      margin: 0 0 1rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #08140d;
+      font-weight: 600;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(45, 220, 106, 0.3);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      padding: 0.6rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .set-summary {
+      display: grid;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .set-summary div {
+      padding: 0.6rem 0.75rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .set-summary span {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .hidden { display: none !important; }
+
+    #letterX {
+      font-size: clamp(3rem, 18vw, 12rem);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-align: center;
+      margin: 1rem 0;
+      color: #ff4f6d;
+    }
+
+    #progressShell {
+      position: relative;
+      height: 1.2rem;
+      width: min(640px, 100%);
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,0.2);
+      overflow: hidden;
+      background: rgba(255,255,255,0.05);
+      margin-bottom: 1rem;
+    }
+
+    #progressFill {
+      position: absolute;
+      inset: 0;
+      width: 0;
+      background: linear-gradient(90deg, #ff5fa2, #ff9a62);
+      transition: width 80ms linear;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 6, 12, 0.86);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+      z-index: 10;
+    }
+
+    .overlay .card {
+      max-width: min(640px, 100%);
+    }
+
+    .overlay h2 {
+      margin-top: 0;
+      font-size: clamp(1.3rem, 2vw + 1rem, 1.9rem);
+    }
+
+    .overlay p {
+      line-height: 1.5;
+      font-size: 1.05rem;
+    }
+
+    .confetti-piece {
+      position: fixed;
+      top: -10px;
+      width: 10px;
+      height: 14px;
+      opacity: 0.8;
+      border-radius: 2px;
+      animation: confettiFall linear infinite;
+      z-index: 5;
+    }
+
+    @keyframes confettiFall {
+      0% { transform: translate3d(0, 0, 0) rotateZ(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      100% { transform: translate3d(var(--drift, 0px), 110vh, 0) rotateZ(360deg); opacity: 0; }
+    }
+
+    footer {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.65);
+      gap: 1rem;
+      background: rgba(10, 13, 25, 0.8);
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    footer a {
+      color: var(--accent);
+    }
+
+    @media (max-width: 600px) {
+      header, footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+      .card { padding: 1.25rem; }
       align-items: center;
       justify-content: center;
       background-color: #f5f5f5;
@@ -80,6 +309,269 @@
   </style>
 </head>
 <body>
+  <header>
+    <h1>Reaction Time Distraction Lab</h1>
+    <nav>
+      <a class="btn" href="data.html">View Data</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card" id="controlCard">
+      <p class="status" id="status">Press “Begin Session” to review the first instructions.</p>
+      <div id="progressShell" class="hidden">
+        <div id="progressFill"></div>
+      </div>
+      <div id="letterX" class="hidden">X</div>
+      <div class="set-summary" id="setSummary"></div>
+      <button class="btn" id="actionButton">Begin Session</button>
+    </section>
+    <section class="card" id="tablesCard">
+      <h2>Session Tables</h2>
+      <p>Each distraction set logs six trials. Only the time between the screen turning green and the J key press is measured.</p>
+      <div id="tables"></div>
+    </section>
+  </main>
+  <footer>
+    <span>Complete all four sets to save results locally for the data viewer.</span>
+    <span>Need instructions later? They’ll appear before each set.</span>
+  </footer>
+
+  <div class="overlay hidden" id="introOverlay">
+    <div class="card">
+      <h2 id="overlayTitle"></h2>
+      <p id="overlayBody"></p>
+      <button class="btn" id="overlayButton">Start Set</button>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'reactionTimeSessions-v2';
+    const SETS = [
+      {
+        id: 'baseline',
+        name: 'Set 1 · No Distraction',
+        intro: 'Watch the screen. After a random delay it turns green. Hit the J key as quickly as you can. Six trials will run back-to-back.',
+        note: 'No distractions. Focus on reacting to green with the J key only.',
+        includeX: false,
+        includeProgress: false,
+        rainbow: false,
+        confetti: false,
+      },
+      {
+        id: 'letter-x',
+        name: 'Set 2 · Letter X Task',
+        intro: 'While you wait for green, an oversized X will appear at random. Press F to hide it. Keep focusing on reacting with J when the screen turns green.',
+        note: 'Letter X appears randomly — press F to dismiss it. Reaction timing still only counts the J key.',
+        includeX: true,
+        includeProgress: false,
+        rainbow: false,
+        confetti: false,
+      },
+      {
+        id: 'progress',
+        name: 'Set 3 · X Task + Progress Bar Game',
+        intro: 'Same X task as Set 2 (press F to clear it). A progress bar at the top will slowly fill; tap SPACE to knock it back. Still press J when the screen turns green.',
+        note: 'Letter X distraction plus a filling progress bar. Press F to clear the X and Space to push the bar back.',
+        includeX: true,
+        includeProgress: true,
+        rainbow: false,
+        confetti: false,
+      },
+      {
+        id: 'celebration',
+        name: 'Set 4 · Rainbow Confetti Finale',
+        intro: 'All previous distractions return plus celebratory confetti and a rainbow background. Remember: only press J when the screen goes green. The rainbow never uses green so the Go signal stays clear.',
+        note: 'Letter X, progress bar, and rainbow confetti all at once. Only the J key after green is recorded.',
+        includeX: true,
+        includeProgress: true,
+        rainbow: true,
+        confetti: true,
+      }
+    ];
+
+    const statusEl = document.getElementById('status');
+    const actionButton = document.getElementById('actionButton');
+    const overlay = document.getElementById('introOverlay');
+    const overlayTitle = document.getElementById('overlayTitle');
+    const overlayBody = document.getElementById('overlayBody');
+    const overlayButton = document.getElementById('overlayButton');
+    const letterX = document.getElementById('letterX');
+    const progressShell = document.getElementById('progressShell');
+    const progressFill = document.getElementById('progressFill');
+    const setSummary = document.getElementById('setSummary');
+    const tables = document.getElementById('tables');
+
+    let currentSetIndex = -1;
+    let trialIndex = 0;
+    let sessionActive = false;
+    let awaitingGo = false;
+    let awaitingReaction = false;
+    let goTimer = null;
+    let startTime = 0;
+    let xTimer = null;
+    let progressTimer = null;
+    let confettiPieces = [];
+    let progressReducer = null;
+    let sessionRecord = null;
+
+    const randomDelay = (min, max) => Math.random() * (max - min) + min;
+
+    function formatMs(ms) {
+      return `${ms.toFixed(1)} ms`;
+    }
+
+    function showOverlayForSet(set) {
+      overlayTitle.textContent = set.name;
+      overlayBody.textContent = set.intro;
+      overlay.classList.remove('hidden');
+      overlayButton.focus();
+    }
+
+    function hideOverlay() {
+      overlay.classList.add('hidden');
+    }
+
+    function setupSetEnvironment(set) {
+      document.body.classList.toggle('rainbow-mode', set.rainbow);
+      progressShell.classList.toggle('hidden', !set.includeProgress);
+      letterX.classList.add('hidden');
+      resetProgress();
+      stopConfetti();
+      if (set.confetti) {
+        startConfetti();
+      }
+    }
+
+    function updateSetSummary() {
+      if (!sessionRecord) {
+        setSummary.innerHTML = '';
+        return;
+      }
+      setSummary.innerHTML = '';
+      sessionRecord.sets.forEach((record, idx) => {
+        const line = document.createElement('div');
+        const status = record.average != null
+          ? `Average: ${formatMs(record.average)}`
+          : idx === currentSetIndex && sessionActive
+            ? 'In progress…'
+            : 'Pending';
+        line.innerHTML = `<strong>${record.name}</strong><span> — ${status}</span>`;
+        setSummary.appendChild(line);
+      });
+    }
+
+    function resetProgress() {
+      progressFill.style.width = '0%';
+      if (progressTimer) {
+        clearInterval(progressTimer);
+        progressTimer = null;
+      }
+    }
+
+    function scheduleLetterX() {
+      clearTimeout(xTimer);
+      const delay = randomDelay(1500, 4000);
+      xTimer = setTimeout(() => {
+        if (sessionActive) {
+          letterX.classList.remove('hidden');
+        }
+      }, delay);
+    }
+
+    function clearLetterX() {
+      letterX.classList.add('hidden');
+      if (sessionActive) {
+        scheduleLetterX();
+      }
+    }
+
+    function startConfetti() {
+      const colors = ['#ff4f6d', '#ff7f50', '#ffd166', '#9b5de5', '#4cc9f0'];
+      for (let i = 0; i < 120; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.background = colors[i % colors.length];
+        const duration = randomDelay(4, 9);
+        piece.style.animationDuration = `${duration}s`;
+        piece.style.animationDelay = `${randomDelay(0, 4)}s`;
+        piece.style.setProperty('--drift', `${randomDelay(-80, 80)}px`);
+        confettiPieces.push(piece);
+        document.body.appendChild(piece);
+      }
+    }
+
+    function stopConfetti() {
+      confettiPieces.forEach(piece => piece.remove());
+      confettiPieces = [];
+    }
+
+    function resetDistractions() {
+      clearTimeout(xTimer);
+      xTimer = null;
+      letterX.classList.add('hidden');
+      resetProgress();
+      stopConfetti();
+      document.body.classList.remove('rainbow-mode');
+      if (progressReducer) {
+        document.removeEventListener('keydown', progressReducer);
+        progressReducer = null;
+      }
+    }
+
+    function setupKeyListeners() {
+      document.addEventListener('keydown', handleKeydown);
+    }
+
+    function handleKeydown(event) {
+      if (!sessionActive) return;
+      const set = SETS[currentSetIndex];
+      if (event.code === 'KeyJ') {
+        if (awaitingReaction) {
+          const reaction = performance.now() - startTime;
+          awaitingReaction = false;
+          document.body.classList.remove('ready-for-go');
+          recordReaction(reaction);
+        } else if (awaitingGo) {
+          statusEl.textContent = 'Too soon! Wait for green. Trial restarting…';
+          awaitingGo = false;
+          clearTimeout(goTimer);
+          document.body.classList.remove('ready-for-go');
+          setTimeout(() => {
+            startTrial();
+          }, 1000);
+        }
+      } else if (set?.includeX && event.code === 'KeyF' && !letterX.classList.contains('hidden')) {
+        clearLetterX();
+      }
+    }
+
+    function recordReaction(reaction) {
+      const set = sessionRecord.sets[currentSetIndex];
+      set.trials.push(reaction);
+      statusEl.textContent = `Trial ${trialIndex + 1} reaction: ${formatMs(reaction)}.`;
+      if (trialIndex === 5) {
+        concludeSet();
+      } else {
+        trialIndex += 1;
+        window.setTimeout(() => {
+          startTrial();
+        }, 1100);
+      }
+    }
+
+    function startTrial() {
+      const set = SETS[currentSetIndex];
+      statusEl.textContent = `Set ${currentSetIndex + 1}, trial ${trialIndex + 1}. Wait for green, then press J.`;
+      awaitingGo = true;
+      awaitingReaction = false;
+      clearTimeout(goTimer);
+      const delay = randomDelay(2000, 5000);
+      goTimer = setTimeout(() => {
+        awaitingGo = false;
+        awaitingReaction = true;
+        document.body.classList.add('ready-for-go');
+        statusEl.textContent = 'GO! Hit J now!';
   <main>
     <h1>Reaction Time Tester</h1>
     <p id="instructions">
@@ -130,6 +622,179 @@
       }, delay);
     }
 
+    function concludeSet() {
+      sessionActive = false;
+      awaitingReaction = false;
+      awaitingGo = false;
+      clearTimeout(goTimer);
+      document.body.classList.remove('ready-for-go');
+      const set = sessionRecord.sets[currentSetIndex];
+      const trials = set.trials;
+      const avg = trials.reduce((sum, t) => sum + t, 0) / trials.length;
+      set.average = avg;
+      appendTableForSet(set, currentSetIndex);
+      updateSetSummary();
+      statusEl.textContent = `${set.name} complete. Average reaction time: ${formatMs(avg)}.`;
+      resetDistractions();
+      if (currentSetIndex === SETS.length - 1) {
+        finishSession();
+      } else {
+        actionButton.textContent = 'Next Instructions';
+        actionButton.classList.remove('hidden');
+      }
+    }
+
+    function appendTableForSet(setRecord, index) {
+      const existing = tables.querySelector(`[data-set="${setRecord.id}"]`);
+      if (existing) existing.remove();
+      const wrapper = document.createElement('section');
+      wrapper.dataset.set = setRecord.id;
+      wrapper.className = 'card';
+      const heading = document.createElement('h3');
+      heading.textContent = `${setRecord.name}`;
+      const average = document.createElement('p');
+      average.innerHTML = `<strong>Average:</strong> ${formatMs(setRecord.average)}`;
+      const note = document.createElement('p');
+      const reference = SETS.find(config => config.id === setRecord.id) || SETS[index];
+      const detail = setRecord.note || reference?.note || (reference?.includeX ? 'Letter X and other tasks are distractions only.' : 'No distractions in this baseline set.');
+      note.innerHTML = `<strong>Notes:</strong> ${detail}`;
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      thead.innerHTML = '<tr><th>Trial</th><th>Reaction Time</th></tr>';
+      const tbody = document.createElement('tbody');
+      setRecord.trials.forEach((time, idx) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${idx + 1}</td><td>${formatMs(time)}</td>`;
+        tbody.appendChild(row);
+      });
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      wrapper.appendChild(heading);
+      wrapper.appendChild(average);
+      wrapper.appendChild(note);
+      wrapper.appendChild(table);
+      tables.appendChild(wrapper);
+    }
+
+    function finishSession() {
+      sessionActive = false;
+      document.removeEventListener('keydown', handleKeydown);
+      const totalTrials = sessionRecord.sets.reduce((sum, set) => sum + set.trials.length, 0);
+      const overall = sessionRecord.sets.reduce((sum, set) => sum + set.trials.reduce((a, b) => a + b, 0), 0) / totalTrials;
+      sessionRecord.overallAverage = overall;
+      statusEl.textContent += ` Overall average across ${totalTrials} trials: ${formatMs(overall)}.`;
+      actionButton.textContent = 'Run Another Session';
+      actionButton.classList.remove('hidden');
+      saveSession();
+    }
+
+    function saveSession() {
+      try {
+        const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        existing.unshift(sessionRecord);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(existing.slice(0, 10)));
+      } catch (error) {
+        console.error('Unable to save session', error);
+      }
+    }
+
+    function beginSet() {
+      const setConfig = SETS[currentSetIndex];
+      const record = sessionRecord.sets[currentSetIndex];
+      record.trials = [];
+      record.average = null;
+      trialIndex = 0;
+      sessionActive = true;
+      setupSetEnvironment(setConfig);
+      if (setConfig.includeX) {
+        scheduleLetterX();
+      }
+      if (setConfig.includeProgress) {
+        startProgressLoop();
+      }
+      actionButton.classList.add('hidden');
+      setupKeyListeners();
+      updateSetSummary();
+      startTrial();
+    }
+
+    function startProgressLoop() {
+      let value = 0;
+      progressFill.style.width = '0%';
+      if (progressTimer) {
+        clearInterval(progressTimer);
+      }
+      progressTimer = setInterval(() => {
+        value = Math.min(100, value + 0.5);
+        progressFill.style.width = `${value}%`;
+      }, 100);
+
+      if (progressReducer) {
+        document.removeEventListener('keydown', progressReducer);
+      }
+      progressReducer = (event) => {
+        if (!sessionActive) return;
+        if (event.code === 'Space') {
+          event.preventDefault();
+          value = Math.max(0, value - 6.5);
+          progressFill.style.width = `${value}%`;
+        }
+      };
+      document.addEventListener('keydown', progressReducer);
+    }
+
+    function prepareNextSet() {
+      currentSetIndex += 1;
+      const set = SETS[currentSetIndex];
+      if (!set) {
+        return;
+      }
+      overlayButton.textContent = 'Begin Set';
+      showOverlayForSet(set);
+      updateSetSummary();
+    }
+
+    actionButton.addEventListener('click', () => {
+      if (sessionActive) return;
+      if (!sessionRecord || currentSetIndex === SETS.length - 1) {
+        sessionRecord = {
+          timestamp: new Date().toISOString(),
+          sets: SETS.map(set => ({ id: set.id, name: set.name, note: set.note, trials: [], average: null })),
+          overallAverage: null,
+        };
+        tables.innerHTML = '';
+        currentSetIndex = -1;
+        updateSetSummary();
+      }
+      prepareNextSet();
+    });
+
+    overlayButton.addEventListener('click', () => {
+      hideOverlay();
+      if (!sessionRecord) return;
+      beginSet();
+    });
+
+    overlay.addEventListener('transitionend', () => {
+      overlayButton.blur();
+    });
+
+    window.addEventListener('beforeunload', () => {
+      clearTimeout(goTimer);
+      clearTimeout(xTimer);
+      if (progressTimer) clearInterval(progressTimer);
+    });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch((error) => {
+          console.error('Service worker registration failed', error);
+        });
+      });
+    }
+
+    // initial state
+    statusEl.textContent = 'Press “Begin Session” to see the first instructions.';
     function finishTrials() {
       const average = trialTimes.reduce((sum, value) => sum + value, 0) / trialTimes.length;
       const averageText = average.toFixed(1);
