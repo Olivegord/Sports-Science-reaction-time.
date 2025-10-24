@@ -16,100 +16,98 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      background-color: #f5f5f5;
+      background: linear-gradient(135deg, rgba(30, 144, 255, 0.25), rgba(138, 43, 226, 0.25));
       color: #222;
     }
 
     main {
-      max-width: 720px;
+      max-width: 840px;
       width: 100%;
-      padding: 2rem;
+      padding: 3rem 1.75rem 4rem;
     }
 
     h1 {
       margin-top: 0;
-      font-size: clamp(2rem, 4vw, 3rem);
+      font-size: clamp(2rem, 5vw, 3.25rem);
       text-align: center;
+    }
+
+    h2 {
+      margin: 2.5rem 0 1rem;
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+    }
+
+    .session-meta {
+      text-align: center;
+      font-size: 1rem;
+      color: rgba(0, 0, 0, 0.65);
+    }
+
+    section.set-table {
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 20px;
+      padding: 1.5rem 1.75rem;
+      box-shadow: 0 25px 55px rgba(0, 0, 0, 0.12);
+      margin-top: 1.5rem;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 1.5rem;
-      background-color: rgba(255, 255, 255, 0.85);
-      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+      margin-top: 0.75rem;
     }
 
-    th, td {
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    th,
+    td {
+      padding: 0.75rem 0.85rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.12);
       text-align: left;
     }
 
     th {
-      background-color: rgba(30, 144, 255, 0.15);
+      background: rgba(30, 144, 255, 0.18);
     }
 
     caption {
       caption-side: bottom;
-      padding: 0.5rem;
-      font-size: 0.9rem;
-      color: rgba(0, 0, 0, 0.65);
+      padding: 0.5rem 0.75rem 0;
+      font-size: 0.95rem;
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    .notes {
+      margin: 0.5rem 0 0;
+      padding-left: 1.25rem;
     }
 
     .empty-state {
       margin-top: 2rem;
       text-align: center;
       font-size: 1.1rem;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 1.5rem 1.75rem;
+      border-radius: 18px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.1);
     }
 
     a {
       display: inline-block;
-      margin-top: 1.5rem;
+      margin-top: 2rem;
       text-decoration: none;
       color: #1e90ff;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
   <main>
     <h1>Reaction Time Session Data</h1>
-    <div id="table-container" class="empty-state">Loading...</div>
+    <div id="session-meta" class="session-meta"></div>
+    <div id="tables" class="tables"></div>
+    <div id="empty-state" class="empty-state" hidden>No session data found yet. Run an experiment to record results.</div>
     <div style="text-align: center;"><a href="index.html">Back to tester</a></div>
   </main>
   <script>
-    function createTable(session) {
-      const table = document.createElement('table');
-      const thead = document.createElement('thead');
-      const headerRow = document.createElement('tr');
-      ['Trial', 'Reaction time (ms)'].forEach((heading) => {
-        const th = document.createElement('th');
-        th.textContent = heading;
-        headerRow.appendChild(th);
-      });
-      thead.appendChild(headerRow);
-      table.appendChild(thead);
-
-      const tbody = document.createElement('tbody');
-      session.trials.forEach((time, index) => {
-        const row = document.createElement('tr');
-        const trialCell = document.createElement('td');
-        trialCell.textContent = index + 1;
-        const timeCell = document.createElement('td');
-        timeCell.textContent = time.toFixed(1);
-        row.appendChild(trialCell);
-        row.appendChild(timeCell);
-        tbody.appendChild(row);
-      });
-      table.appendChild(tbody);
-
-      const caption = document.createElement('caption');
-      const recordedDate = new Date(session.recordedAt);
-      caption.textContent = `Recorded ${recordedDate.toLocaleString()} • Average reaction time: ${session.average.toFixed(1)} ms`;
-      table.appendChild(caption);
-      return table;
-    }
-
     function loadSession() {
       try {
         const raw = localStorage.getItem('reactionTimeSession');
@@ -123,16 +121,115 @@
       }
     }
 
-    const container = document.getElementById('table-container');
-    const session = loadSession();
-    if (!session || !Array.isArray(session.trials) || session.trials.length === 0) {
-      container.textContent = 'No session data found yet. Run a reaction time test to record results.';
-      container.classList.add('empty-state');
-    } else {
-      container.classList.remove('empty-state');
-      container.innerHTML = '';
-      container.appendChild(createTable(session));
+    function normaliseSession(raw) {
+      if (!raw) {
+        return null;
+      }
+      if (Array.isArray(raw.sets)) {
+        return raw;
+      }
+      if (Array.isArray(raw.trials)) {
+        return {
+          recordedAt: raw.recordedAt || new Date().toISOString(),
+          totalSets: 1,
+          trialsPerSet: raw.trials.length,
+          overallAverage: raw.average,
+          sets: [
+            {
+              key: 'baseline',
+              label: 'Baseline (No Distraction)',
+              notes: ['Legacy session imported from earlier version.'],
+              trials: raw.trials,
+              average: raw.average,
+            },
+          ],
+        };
+      }
+      return null;
     }
+
+    function createSetSection(set, index) {
+      const section = document.createElement('section');
+      section.className = 'set-table';
+
+      const heading = document.createElement('h2');
+      heading.textContent = `Set ${index + 1}: ${set.label}`;
+      section.appendChild(heading);
+
+      if (Array.isArray(set.notes) && set.notes.length) {
+        const notesList = document.createElement('ul');
+        notesList.className = 'notes';
+        set.notes.forEach((note) => {
+          const li = document.createElement('li');
+          li.textContent = note;
+          notesList.appendChild(li);
+        });
+        section.appendChild(notesList);
+      }
+
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      ['Trial', 'Reaction time (ms)'].forEach((heading) => {
+        const th = document.createElement('th');
+        th.textContent = heading;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      set.trials.forEach((time, trialIndex) => {
+        const row = document.createElement('tr');
+        const trialCell = document.createElement('td');
+        trialCell.textContent = trialIndex + 1;
+        const timeCell = document.createElement('td');
+        const numericTime = typeof time === 'number' ? time : Number.parseFloat(time);
+        timeCell.textContent = Number.isFinite(numericTime) ? numericTime.toFixed(1) : '—';
+        row.appendChild(trialCell);
+        row.appendChild(timeCell);
+        tbody.appendChild(row);
+      });
+      table.appendChild(tbody);
+
+      const caption = document.createElement('caption');
+      const averageText = Number.isFinite(set.average) ? set.average.toFixed(1) : '—';
+      caption.textContent = `${set.trials.length} trials • Average reaction time ${averageText} ms`;
+      table.appendChild(caption);
+
+      section.appendChild(table);
+      return section;
+    }
+
+    const sessionMeta = document.getElementById('session-meta');
+    const tablesContainer = document.getElementById('tables');
+    const emptyState = document.getElementById('empty-state');
+
+    const rawSession = loadSession();
+    const session = normaliseSession(rawSession);
+
+    if (!session || !Array.isArray(session.sets) || session.sets.length === 0) {
+      emptyState.hidden = false;
+      sessionMeta.textContent = '';
+      return;
+    }
+
+    emptyState.hidden = true;
+    const recordedDate = session.recordedAt ? new Date(session.recordedAt) : null;
+    const recordedText = recordedDate ? recordedDate.toLocaleString() : 'Unknown time';
+    const totalTrials = session.sets.reduce((sum, set) => sum + set.trials.length, 0);
+    const weightedSum = session.sets.reduce((sum, set) => sum + (Number.isFinite(set.average) ? set.average * set.trials.length : 0), 0);
+    const overallAverage = Number.isFinite(session.overallAverage)
+      ? session.overallAverage
+      : totalTrials > 0
+        ? weightedSum / totalTrials
+        : 0;
+    sessionMeta.textContent = `Recorded ${recordedText} • ${session.sets.length} set(s) • ${totalTrials} total trials • Overall average ${overallAverage.toFixed(1)} ms`;
+
+    tablesContainer.innerHTML = '';
+    session.sets.forEach((set, index) => {
+      tablesContainer.appendChild(createSetSection(set, index));
+    });
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

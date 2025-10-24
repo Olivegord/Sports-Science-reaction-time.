@@ -1,14 +1,22 @@
 # Sports Science Reaction Time Tester
 
-This repository hosts a lightweight, offline-friendly reaction time tester that can be published with GitHub Pages.
+This repository hosts a lightweight, offline-friendly reaction time tester with four distraction conditions that can be published with GitHub Pages.
 
 ## Run it locally
 
 1. Download or clone this repository.
 2. Open the `index.html` file directly in any modern desktop browser (double-click it in your file manager or drag it into a browser window).
 3. The page will load the tester with all assets bundled, so no additional build step is required.
-4. Complete the five trials. When the screen turns green, press the **J** key as quickly as you can. Your average reaction time is displayed once all trials are complete.
-5. Your most recent session is saved to `localStorage`. Open `data.html` in the same browser to review the recorded times in a table. Clearing browser storage removes the saved results.
+4. Each run contains four distraction sets with six trials per set. Follow the splash instructions before every set and press the **J** key as soon as the background flashes green.
+5. In the distraction sets, tap **F** whenever the large **X** appears and press the **Space bar** to knock down the progress bar when it creeps upward. These distractions keep participants busy, but only the J-key reaction is recorded.
+6. After all four sets finish, review the per-set tables on the main page. Your most recent session is also saved to `localStorage`; open `data.html` in the same browser to revisit every set table later. Clearing browser storage removes the saved results.
+
+### Distraction sets
+
+1. **Baseline (no distraction)** – react to the green background as quickly as possible.
+2. **Letter distraction** – keep reacting with **J** while hiding the large **X** with the **F** key.
+3. **Letter + progress bar** – continue the letter task and tap **Space** to push the creeping bar back down.
+4. **Rainbow celebration** – the letter and progress bar remain while a rainbow backdrop and confetti add extra visual noise.
 
 > **Tip:** If you prefer to serve the files over HTTP instead of opening them directly, run a static file server (for example `npx serve .`) from the project root and visit `http://localhost:3000/index.html`.
 

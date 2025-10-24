@@ -10,6 +10,10 @@
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     }
 
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
@@ -19,7 +23,8 @@
       justify-content: center;
       background-color: #f5f5f5;
       color: #222;
-      transition: background-color 150ms ease-in-out;
+      transition: background-color 150ms ease-in-out, color 150ms ease-in-out;
+      overflow-x: hidden;
     }
 
     body.waiting {
@@ -32,41 +37,194 @@
       color: #fff;
     }
 
+    body.rainbow-mode {
+      color: #fff;
+      background: linear-gradient(120deg, #ff0048, #ff7f00, #ffd300, #8f00ff, #0057ff);
+      background-size: 400% 400%;
+      animation: rainbowShift 16s linear infinite;
+    }
+
+    body.rainbow-mode.waiting,
+    body.rainbow-mode.ready {
+      animation: none;
+    }
+
+    body.rainbow-mode.waiting {
+      background: #b22222;
+    }
+
+    body.rainbow-mode.ready {
+      background: #228b22;
+    }
+
+
+    @keyframes rainbowShift {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
     main {
-      max-width: 720px;
-      padding: 2rem;
+      max-width: 760px;
+      padding: 2.5rem 1.75rem 3rem;
       text-align: center;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 24px;
+      box-shadow: 0 20px 55px rgba(0, 0, 0, 0.12);
+      backdrop-filter: blur(6px);
+      margin: 2rem;
+    }
+
+    body.waiting main,
+    body.ready main {
+      background: rgba(0, 0, 0, 0.25);
+      color: #fff;
+    }
+
+    body.rainbow-mode main {
+      background: rgba(20, 20, 20, 0.5);
     }
 
     h1 {
       margin-bottom: 0.5rem;
-      font-size: clamp(2rem, 4vw, 3rem);
+      font-size: clamp(2rem, 5vw, 3.25rem);
     }
 
     p {
       margin: 0.5rem 0;
-      line-height: 1.5;
+      line-height: 1.6;
+    }
+
+    #set-notes {
+      margin: 1rem auto 1.5rem;
+      max-width: 640px;
+      text-align: left;
+      background: rgba(30, 144, 255, 0.12);
+      border-radius: 16px;
+      padding: 1rem 1.25rem;
+      color: inherit;
+    }
+
+    body.waiting #set-notes,
+    body.ready #set-notes,
+    body.rainbow-mode #set-notes {
+      background: rgba(0, 0, 0, 0.35);
+      color: #fff;
+    }
+
+    #set-notes ul {
+      padding-left: 1.25rem;
+      margin: 0.5rem 0 0;
+    }
+
+    #set-notes li + li {
+      margin-top: 0.4rem;
     }
 
     button {
       margin-top: 1.5rem;
-      padding: 0.75rem 2rem;
-      font-size: 1.1rem;
+      padding: 0.85rem 2.75rem;
+      font-size: 1.15rem;
       border: none;
       border-radius: 999px;
-      background-color: #1e90ff;
+      background: linear-gradient(135deg, #1e90ff, #6a5acd);
       color: #fff;
       cursor: pointer;
-      transition: background-color 120ms ease-in-out;
+      transition: transform 120ms ease-in-out, box-shadow 120ms ease-in-out;
     }
 
-    button:hover {
-      background-color: #0f62d6;
+    button:hover:enabled {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(30, 144, 255, 0.35);
+    }
+
+    button:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
     }
 
     .results {
-      margin-top: 1.5rem;
+      margin-top: 1.25rem;
       font-size: 1.1rem;
+      min-height: 1.5rem;
+    }
+
+    .set-results {
+      margin-top: 2rem;
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .set-summary {
+      text-align: left;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      box-shadow: 0 14px 45px rgba(0, 0, 0, 0.12);
+    }
+
+    body.waiting .set-summary,
+    body.ready .set-summary,
+    body.rainbow-mode .set-summary {
+      background: rgba(0, 0, 0, 0.45);
+      color: #fff;
+      box-shadow: 0 14px 45px rgba(0, 0, 0, 0.35);
+    }
+
+    .set-summary h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1.35rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.75rem;
+    }
+
+    th,
+    td {
+      padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      text-align: left;
+    }
+
+    body.waiting th,
+    body.waiting td,
+    body.ready th,
+    body.ready td,
+    body.rainbow-mode th,
+    body.rainbow-mode td {
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    th {
+      background: rgba(30, 144, 255, 0.18);
+    }
+
+    body.waiting th,
+    body.ready th,
+    body.rainbow-mode th {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    caption {
+      caption-side: bottom;
+      padding: 0.5rem 0.75rem 0;
+      font-size: 0.95rem;
+      color: rgba(0, 0, 0, 0.65);
+    }
+
+    body.waiting caption,
+    body.ready caption,
+    body.rainbow-mode caption {
+      color: rgba(255, 255, 255, 0.75);
     }
 
     .link-row {
@@ -77,112 +235,618 @@
     a {
       color: inherit;
     }
+
+    #distraction-letter {
+      position: fixed;
+      top: 18%;
+      right: 8%;
+      font-size: clamp(4rem, 12vw, 8rem);
+      font-weight: 700;
+      color: rgba(0, 0, 0, 0.85);
+      text-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 140ms ease-out, transform 140ms ease-out;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    body.waiting #distraction-letter,
+    body.ready #distraction-letter,
+    body.rainbow-mode #distraction-letter {
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    #distraction-letter.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    #progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 12px;
+      background: rgba(0, 0, 0, 0.1);
+      transform: scaleY(0);
+      transform-origin: top;
+      transition: transform 160ms ease-out;
+      z-index: 9;
+      pointer-events: none;
+    }
+
+    #progress-bar.active {
+      transform: scaleY(1);
+    }
+
+    #progress-bar .fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #ff0048, #ff7f00, #8f00ff);
+      transition: width 120ms linear;
+    }
+
+    #confetti-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 8;
+      opacity: 0;
+      transition: opacity 260ms ease-in-out;
+    }
+
+    #confetti-container.active {
+      opacity: 1;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      top: -12vh;
+      width: 0.6rem;
+      height: 1.2rem;
+      border-radius: 0.2rem;
+      opacity: 0.85;
+      animation: confettiFall var(--duration) linear infinite;
+      animation-delay: var(--delay);
+      left: var(--left);
+    }
+
+    @keyframes confettiFall {
+      0% {
+        transform: translate3d(0, -5vh, 0) rotateZ(0deg);
+      }
+      100% {
+        transform: translate3d(0, 120vh, 0) rotateZ(360deg);
+      }
+    }
   </style>
 </head>
 <body>
+  <div id="progress-bar" aria-hidden="true"><div class="fill" id="progress-fill"></div></div>
+  <div id="confetti-container" aria-hidden="true"></div>
+  <div id="distraction-letter" aria-hidden="true"></div>
   <main>
-    <h1>Reaction Time Tester</h1>
+    <h1>Multi-condition Reaction Time Tester</h1>
     <p id="instructions">
-      Press the <strong>Start Trials</strong> button to begin. After a short delay the screen will turn green.
-      When it does, press the <strong>J</strong> key as quickly as possible. There are five trials in total.
+      This experiment contains four distraction conditions. Each condition has six trials measuring how fast you press the
+      <strong>J</strong> key after the screen turns green. Follow the on-screen guidance for each set.
     </p>
-    <button id="start">Start Trials</button>
-    <div class="results" id="results"></div>
-    <div class="link-row"><a href="data.html">View saved trial data</a></div>
+    <div id="set-notes" hidden></div>
+    <button id="start">Begin Experiment</button>
+    <div class="results" id="results" aria-live="polite"></div>
+    <div class="set-results" id="set-results" aria-live="polite"></div>
+    <div class="link-row"><a href="data.html">View saved session tables</a></div>
   </main>
   <script>
-    const totalTrials = 5;
+    const TRIALS_PER_SET = 6;
+    const MIN_DELAY = 1000;
+    const MAX_DELAY = 3000;
+    const LETTER_MIN_DELAY = 1400;
+    const LETTER_MAX_DELAY = 2800;
+
+    const experimentSets = [
+      {
+        key: 'baseline',
+        label: 'Baseline (No Distraction)',
+        introHtml:
+          '<p><strong>Set 1: Baseline (No Distraction)</strong></p>' +
+          '<p>Focus only on the screen changing colour. When it turns green, press the <strong>J</strong> key as quickly as you can.</p>' +
+          `<p>You will complete ${TRIALS_PER_SET} trials in this set.</p>`,
+        notes: [
+          'Watch for the whole background turning green.',
+          `Press the J key as quickly as you can each time.`,
+          `There are ${TRIALS_PER_SET} trials in this condition.`,
+        ],
+        waitingMessage: (trial, total) => `Set 1 · Trial ${trial} of ${total}: Wait for green, then press J.`,
+        readyMessage: (trial, total) => `Set 1 · Trial ${trial} of ${total}: Press J now!`,
+        features: { letter: false, progress: false, confetti: false, rainbow: false },
+      },
+      {
+        key: 'letter',
+        label: 'Distraction: Tap F when X appears',
+        introHtml:
+          '<p><strong>Set 2: Letter distraction</strong></p>' +
+          '<p>While you keep reacting to the screen turning green with the <strong>J</strong> key, an extra <strong>X</strong> will pop up.</p>' +
+          '<p>Whenever the big X appears, press the <strong>F</strong> key to hide it. The timing of the X does not affect the J-key measurement.</p>',
+        notes: [
+          'Press J when the background turns green — that is the only time recorded.',
+          'When a large X appears, tap F to hide it. It will reappear after a random delay.',
+          `There are ${TRIALS_PER_SET} trials in this condition.`,
+        ],
+        waitingMessage: (trial, total) => `Set 2 · Trial ${trial} of ${total}: Wait for green, then press J.`,
+        readyMessage: (trial, total) => `Set 2 · Trial ${trial} of ${total}: Press J now!`,
+        features: { letter: true, progress: false, confetti: false, rainbow: false },
+      },
+      {
+        key: 'letter-progress',
+        label: 'Distraction: Letter + Progress Bar game',
+        introHtml:
+          '<p><strong>Set 3: Letter distraction with progress bar</strong></p>' +
+          '<p>You still react with the <strong>J</strong> key when the screen turns green and press <strong>F</strong> when the X appears.</p>' +
+          '<p>A progress bar will slowly fill across the top. Tap the <strong>Space bar</strong> to push it back down whenever you notice it rising.</p>',
+        notes: [
+          'Keep reacting to green with J — only J is measured.',
+          'When you see the X, press F to make it disappear.',
+          'Tap the space bar to knock the progress bar back when it climbs.',
+          `There are ${TRIALS_PER_SET} trials in this condition.`,
+        ],
+        waitingMessage: (trial, total) => `Set 3 · Trial ${trial} of ${total}: Wait for green, then press J.`,
+        readyMessage: (trial, total) => `Set 3 · Trial ${trial} of ${total}: Press J now!`,
+        features: { letter: true, progress: true, confetti: false, rainbow: false },
+      },
+      {
+        key: 'ultimate-finale',
+        label: 'Distraction: Rainbow celebration',
+        introHtml:
+          '<p><strong>Set 4: Rainbow celebration</strong></p>' +
+          '<p>The room goes full celebration mode with confetti and a rainbow backdrop. Continue reacting with <strong>J</strong> when the background turns green.</p>' +
+          '<p>The large X and progress bar mini-task remain as before: press <strong>F</strong> for the X and tap <strong>Space</strong> to keep the bar in check.</p>' +
+          '<p>The rainbow never turns green so the green flash is still your go-signal.</p>',
+        notes: [
+          'Keep pressing J as soon as the background flashes green — that is what is measured.',
+          'Tap F when the large X appears.',
+          'Use the space bar to push the progress bar back.',
+          'Enjoy the confetti and rainbow background — they are distractions only.',
+        ],
+        waitingMessage: (trial, total) => `Set 4 · Trial ${trial} of ${total}: Wait for green, then press J.`,
+        readyMessage: (trial, total) => `Set 4 · Trial ${trial} of ${total}: Press J now!`,
+        features: { letter: true, progress: true, confetti: true, rainbow: true },
+      },
+    ];
+
     const startButton = document.getElementById('start');
     const instructions = document.getElementById('instructions');
     const results = document.getElementById('results');
+    const setResultsContainer = document.getElementById('set-results');
+    const setNotes = document.getElementById('set-notes');
+    const letterElement = document.getElementById('distraction-letter');
+    const progressBar = document.getElementById('progress-bar');
+    const progressFill = document.getElementById('progress-fill');
+    const confettiContainer = document.getElementById('confetti-container');
 
-    let trialTimes = [];
-    let trialIndex = 0;
-    let timeoutId = null;
-    let startTime = null;
+    let phase = 'idle';
     let state = 'idle';
+    let currentSetIndex = 0;
+    let trialIndex = 0;
+    let trialTimes = [];
+    let sessionResults = [];
+    let waitTimeoutId = null;
+    let betweenTimeoutId = null;
+    let letterTimeoutId = null;
+    let progressIntervalId = null;
+    let startTime = null;
+    let letterVisible = false;
+    let progressValue = 0;
 
-    const MIN_DELAY = 1000;
-    const MAX_DELAY = 3000;
-
-    function reset() {
-      clearTimeout(timeoutId);
-      trialTimes = [];
-      trialIndex = 0;
-      startTime = null;
-      state = 'idle';
-      document.body.className = '';
-      results.textContent = '';
-      instructions.textContent = 'Press the Start Trials button to begin. After a short delay the screen will turn green. When it does, press the J key as quickly as possible. There are five trials in total.';
-      startButton.disabled = false;
+    function renderNotes(notes) {
+      if (!notes || !notes.length) {
+        setNotes.innerHTML = '';
+        setNotes.hidden = true;
+        return;
+      }
+      const list = notes.map((note) => `<li>${note}</li>`).join('');
+      setNotes.innerHTML = `<strong>Remember:</strong><ul>${list}</ul>`;
+      setNotes.hidden = false;
     }
 
-    function beginTrial() {
+    function randomBetween(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function clearAllTimers() {
+      clearTimeout(waitTimeoutId);
+      clearTimeout(letterTimeoutId);
+      clearTimeout(betweenTimeoutId);
+      clearInterval(progressIntervalId);
+      waitTimeoutId = null;
+      letterTimeoutId = null;
+      betweenTimeoutId = null;
+      progressIntervalId = null;
+    }
+
+    function setBodyState(mode) {
+      document.body.classList.remove('waiting', 'ready');
+      if (mode) {
+        document.body.classList.add(mode);
+      }
+    }
+
+    function currentConfig() {
+      return experimentSets[currentSetIndex];
+    }
+
+    function startLetterDistraction() {
+      letterElement.classList.add('active');
+      hideLetter();
+      scheduleLetter();
+    }
+
+    function stopLetterDistraction() {
+      clearTimeout(letterTimeoutId);
+      letterTimeoutId = null;
+      hideLetter();
+      letterElement.classList.remove('active');
+    }
+
+    function scheduleLetter() {
+      clearTimeout(letterTimeoutId);
+      const delay = randomBetween(LETTER_MIN_DELAY, LETTER_MAX_DELAY);
+      letterTimeoutId = setTimeout(() => {
+        letterVisible = true;
+        letterElement.textContent = 'X';
+        letterElement.classList.add('visible');
+      }, delay);
+    }
+
+    function hideLetter() {
+      letterVisible = false;
+      letterElement.textContent = '';
+      letterElement.classList.remove('visible');
+    }
+
+    function startProgressDistraction() {
+      progressValue = 0;
+      updateProgressBar();
+      progressBar.classList.add('active');
+      clearInterval(progressIntervalId);
+      progressIntervalId = setInterval(() => {
+        progressValue = Math.min(100, progressValue + 0.45);
+        updateProgressBar();
+      }, 120);
+    }
+
+    function stopProgressDistraction() {
+      progressBar.classList.remove('active');
+      clearInterval(progressIntervalId);
+      progressIntervalId = null;
+      progressValue = 0;
+      updateProgressBar();
+    }
+
+    function updateProgressBar() {
+      progressFill.style.width = `${progressValue}%`;
+    }
+
+    function startConfetti() {
+      confettiContainer.innerHTML = '';
+      const colors = ['#ff0048', '#ff7f00', '#ffd300', '#8f00ff', '#0057ff'];
+      const pieceCount = 90;
+      for (let i = 0; i < pieceCount; i += 1) {
+        const piece = document.createElement('span');
+        piece.className = 'confetti-piece';
+        piece.style.setProperty('--left', `${Math.random() * 100}%`);
+        piece.style.setProperty('--delay', `${Math.random() * 4}s`);
+        piece.style.setProperty('--duration', `${4 + Math.random() * 3}s`);
+        piece.style.backgroundColor = colors[i % colors.length];
+        confettiContainer.appendChild(piece);
+      }
+      confettiContainer.classList.add('active');
+    }
+
+    function stopConfetti() {
+      confettiContainer.classList.remove('active');
+      confettiContainer.innerHTML = '';
+    }
+
+    function stopDistractions() {
+      stopLetterDistraction();
+      stopProgressDistraction();
+      stopConfetti();
+      document.body.classList.remove('rainbow-mode');
+    }
+
+    function activateDistractions(features) {
+      if (features.rainbow) {
+        document.body.classList.add('rainbow-mode');
+      } else {
+        document.body.classList.remove('rainbow-mode');
+      }
+      if (features.letter) {
+        startLetterDistraction();
+      } else {
+        stopLetterDistraction();
+      }
+      if (features.progress) {
+        startProgressDistraction();
+      } else {
+        stopProgressDistraction();
+      }
+      if (features.confetti) {
+        startConfetti();
+      } else {
+        stopConfetti();
+      }
+    }
+
+    function scheduleTrial() {
+      const config = currentConfig();
       state = 'waiting';
-      document.body.className = 'waiting';
-      instructions.textContent = `Trial ${trialIndex + 1} of ${totalTrials}: Wait for green, then press J.`;
-      const delay = Math.random() * (MAX_DELAY - MIN_DELAY) + MIN_DELAY;
-      timeoutId = setTimeout(() => {
+      setBodyState('waiting');
+      instructions.innerHTML = config.waitingMessage(trialIndex + 1, TRIALS_PER_SET);
+      const delay = randomBetween(MIN_DELAY, MAX_DELAY);
+      waitTimeoutId = setTimeout(() => {
         state = 'ready';
-        document.body.className = 'ready';
-        instructions.textContent = `Trial ${trialIndex + 1} of ${totalTrials}: Press J!`;
+        setBodyState('ready');
+        instructions.innerHTML = config.readyMessage(trialIndex + 1, TRIALS_PER_SET);
         startTime = performance.now();
       }, delay);
     }
 
-    function finishTrials() {
-      const average = trialTimes.reduce((sum, value) => sum + value, 0) / trialTimes.length;
-      const averageText = average.toFixed(1);
-      instructions.textContent = `Completed ${totalTrials} trials. Average reaction time: ${averageText} ms.`;
-      results.innerHTML = `Trial times: ${trialTimes.map((t, i) => `Trial ${i + 1}: ${t.toFixed(1)} ms`).join('<br>')}<br><strong>Average: ${averageText} ms</strong>`;
-      document.body.className = '';
-      state = 'done';
-      startButton.disabled = false;
-      const payload = {
-        recordedAt: new Date().toISOString(),
-        trials: trialTimes,
-        average
-      };
-      localStorage.setItem('reactionTimeSession', JSON.stringify(payload));
+    function buildSetTable(config, times, average) {
+      const wrapper = document.createElement('section');
+      wrapper.className = 'set-summary';
+
+      const heading = document.createElement('h2');
+      heading.textContent = `${config.label} — Average ${average.toFixed(1)} ms`;
+      wrapper.appendChild(heading);
+
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      ['Trial', 'Reaction time (ms)'].forEach((headingText) => {
+        const th = document.createElement('th');
+        th.textContent = headingText;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      times.forEach((time, index) => {
+        const row = document.createElement('tr');
+        const trialCell = document.createElement('td');
+        trialCell.textContent = index + 1;
+        const timeCell = document.createElement('td');
+        timeCell.textContent = time.toFixed(1);
+        row.appendChild(trialCell);
+        row.appendChild(timeCell);
+        tbody.appendChild(row);
+      });
+      table.appendChild(tbody);
+
+      const caption = document.createElement('caption');
+      caption.textContent = `${times.length} trials • Average reaction time ${average.toFixed(1)} ms`;
+      table.appendChild(caption);
+
+      wrapper.appendChild(table);
+      return wrapper;
     }
 
-    startButton.addEventListener('click', () => {
-      reset();
-      startButton.disabled = true;
-      beginTrial();
-    });
+    function completeSet() {
+      clearTimeout(waitTimeoutId);
+      clearTimeout(betweenTimeoutId);
+      waitTimeoutId = null;
+      betweenTimeoutId = null;
+      const config = currentConfig();
+      const average = trialTimes.reduce((sum, value) => sum + value, 0) / trialTimes.length;
+      results.textContent = `Set ${currentSetIndex + 1} average: ${average.toFixed(1)} ms.`;
+      const setSummary = buildSetTable(config, trialTimes, average);
+      setResultsContainer.appendChild(setSummary);
+      renderNotes([]);
 
-    window.addEventListener('keydown', (event) => {
-      if (event.key.toLowerCase() !== 'j') {
+      sessionResults[currentSetIndex] = {
+        key: config.key,
+        label: config.label,
+        notes: [...config.notes],
+        trials: [...trialTimes],
+        average,
+      };
+
+      stopDistractions();
+      setBodyState(null);
+      state = 'idle';
+
+      if (currentSetIndex === experimentSets.length - 1) {
+        finishExperiment();
         return;
       }
+
+      phase = 'setComplete';
+      instructions.innerHTML =
+        `Completed ${config.label}. Click the button to review instructions for the next condition.`;
+      startButton.textContent = `Next: ${experimentSets[currentSetIndex + 1].label}`;
+      startButton.disabled = false;
+    }
+
+    function finishExperiment() {
+      phase = 'experimentComplete';
+      const recordedSets = sessionResults.filter(Boolean);
+      const overallTimes = recordedSets.flatMap((set) => set.trials);
+      const overallAverage =
+        overallTimes.length > 0
+          ? overallTimes.reduce((sum, value) => sum + value, 0) / overallTimes.length
+          : 0;
+      instructions.innerHTML =
+        `All ${experimentSets.length} sets complete! Overall average reaction time: ${overallAverage.toFixed(1)} ms.`;
+      results.textContent = 'Your tables below show each set separately. Data saved for the data viewer.';
+      renderNotes([]);
+      startButton.textContent = 'Run Experiment Again';
+      startButton.disabled = false;
+
+      const payload = {
+        recordedAt: new Date().toISOString(),
+        totalSets: experimentSets.length,
+        trialsPerSet: TRIALS_PER_SET,
+        overallAverage,
+        sets: recordedSets,
+      };
+      try {
+        localStorage.setItem('reactionTimeSession', JSON.stringify(payload));
+      } catch (error) {
+        console.error('Failed to store session data:', error);
+      }
+    }
+
+    function startSet() {
+      clearAllTimers();
+      phase = 'running';
+      state = 'idle';
+      trialIndex = 0;
+      trialTimes = [];
+      results.textContent = '';
+      setBodyState(null);
+      startButton.disabled = true;
+      const config = currentConfig();
+      renderNotes(config.notes);
+      activateDistractions(config.features);
+      scheduleTrial();
+    }
+
+    function showSetIntro() {
+      clearAllTimers();
+      stopDistractions();
+      trialTimes = [];
+      trialIndex = 0;
+      state = 'idle';
+      const config = currentConfig();
+      instructions.innerHTML = config.introHtml;
+      renderNotes(config.notes);
+      startButton.textContent = `Start Set ${currentSetIndex + 1}`;
+      startButton.disabled = false;
+      phase = 'intro';
+      setBodyState(null);
+    }
+
+    function resetExperiment() {
+      clearAllTimers();
+      stopDistractions();
+      state = 'idle';
+      phase = 'idle';
+      currentSetIndex = 0;
+      trialIndex = 0;
+      trialTimes = [];
+      sessionResults = new Array(experimentSets.length);
+      setResultsContainer.innerHTML = '';
+      results.textContent = '';
+      renderNotes([]);
+      instructions.innerHTML =
+        'This experiment contains four distraction conditions. Each condition has six trials measuring how fast you press the <strong>J</strong> key after the screen turns green. Follow the on-screen guidance for each set.';
+      startButton.textContent = 'Begin Experiment';
+      startButton.disabled = false;
+      setBodyState(null);
+    }
+
+    function handleJPress() {
       if (state === 'waiting') {
-        instructions.textContent = 'Too soon! Wait for the screen to turn green before pressing J. Press Start Trials to try again.';
-        document.body.className = '';
+        clearTimeout(waitTimeoutId);
+        waitTimeoutId = null;
+        instructions.innerHTML =
+          'Too soon! Wait for the background to turn green before pressing J. Click the button to restart this set.';
+        stopDistractions();
+        clearTimeout(betweenTimeoutId);
+        betweenTimeoutId = null;
+        startButton.textContent = `Restart Set ${currentSetIndex + 1}`;
         startButton.disabled = false;
-        clearTimeout(timeoutId);
+        phase = 'intro';
         state = 'idle';
         trialTimes = [];
         trialIndex = 0;
+        setBodyState(null);
         return;
       }
+
       if (state !== 'ready') {
         return;
       }
+
       const reactionTime = performance.now() - startTime;
       trialTimes.push(reactionTime);
-      results.textContent = `Trial ${trialIndex + 1}: ${reactionTime.toFixed(1)} ms`;
-      document.body.className = '';
+      results.textContent = `Set ${currentSetIndex + 1} · Trial ${trialIndex + 1}: ${reactionTime.toFixed(1)} ms`;
+      setBodyState(null);
       state = 'between';
       trialIndex += 1;
-      if (trialIndex >= totalTrials) {
-        finishTrials();
+
+      if (trialIndex >= TRIALS_PER_SET) {
+        completeSet();
       } else {
-        timeoutId = setTimeout(() => {
-          beginTrial();
+        betweenTimeoutId = setTimeout(() => {
+          scheduleTrial();
         }, 1500);
       }
+    }
+
+    function handleFPress() {
+      const config = currentConfig();
+      if (!config.features.letter || !letterVisible) {
+        return;
+      }
+      hideLetter();
+      scheduleLetter();
+    }
+
+    function handleSpacePress(event) {
+      const config = currentConfig();
+      if (!config.features.progress) {
+        return;
+      }
+      event.preventDefault();
+      progressValue = Math.max(0, progressValue - 8);
+      updateProgressBar();
+    }
+
+    startButton.addEventListener('click', () => {
+      if (phase === 'idle') {
+        resetExperiment();
+        showSetIntro();
+        return;
+      }
+
+      if (phase === 'intro') {
+        startSet();
+        return;
+      }
+
+      if (phase === 'setComplete') {
+        currentSetIndex += 1;
+        showSetIntro();
+        return;
+      }
+
+      if (phase === 'experimentComplete') {
+        resetExperiment();
+        showSetIntro();
+      }
     });
+
+    window.addEventListener('keydown', (event) => {
+      const key = event.key.toLowerCase();
+      if (key === 'j') {
+        handleJPress();
+        return;
+      }
+      if (key === 'f') {
+        handleFPress();
+        return;
+      }
+      if (event.code === 'Space') {
+        handleSpacePress(event);
+      }
+    });
+
+    resetExperiment();
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
