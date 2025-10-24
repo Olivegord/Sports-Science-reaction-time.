@@ -1,56 +1,45 @@
-const CACHE_VERSION = '2024-05-08';
-const CACHE_NAME = `reaction-time-tool-${CACHE_VERSION}`;
-const ASSETS = [
-  './',
-  './index.html',
-  './data.html',
-  './sw.js',
+const CACHE_VERSION = 'v1';
+const CACHE_NAME = `reaction-lab-${CACHE_VERSION}`;
+const BASE_PATH = self.location.pathname.replace(/sw\.js$/i, '');
+const OFFLINE_ASSETS = [
+  BASE_PATH || '/',
+  `${BASE_PATH}index.html`,
+  `${BASE_PATH}data.html`,
+  `${BASE_PATH}sw.js`,
+  'https://fonts.googleapis.com/css2?family=Rubik:wght@400;600&display=swap'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(OFFLINE_ASSETS)).then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        keys.filter((key) => key.startsWith('reaction-lab-') && key !== CACHE_NAME).map((key) => caches.delete(key))
       )
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') {
     return;
   }
-
-  const { request } = event;
-  if (request.cache === 'only-if-cached' && request.mode !== 'same-origin') {
+  const url = new URL(event.request.url);
+  if (url.origin !== location.origin) {
     return;
   }
-  const isSameOrigin = new URL(request.url, self.location.origin).origin === self.location.origin;
-
   event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) {
-        return cached;
-      }
-
-      return fetch(request)
-        .then((response) => {
-          if (isSameOrigin && response.status === 200) {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-          }
-          return response;
-        })
-        .catch(() => caches.match('./index.html'));
-    })
+    caches.match(event.request).then((cached) =>
+      cached || fetch(event.request).then((response) => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        return response;
+      }).catch(() => caches.match(`${BASE_PATH}index.html`))
+    )
   );
 });
