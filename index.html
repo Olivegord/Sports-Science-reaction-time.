@@ -283,6 +283,7 @@
         id: 'baseline',
         name: 'Set 1 · No Distraction',
         intro: 'Watch the screen. After a random delay it turns green. Hit the J key as quickly as you can. Six trials will run back-to-back.',
+        note: 'No distractions. Focus on reacting to green with the J key only.',
         includeX: false,
         includeProgress: false,
         rainbow: false,
@@ -292,6 +293,7 @@
         id: 'letter-x',
         name: 'Set 2 · Letter X Task',
         intro: 'While you wait for green, an oversized X will appear at random. Press F to hide it. Keep focusing on reacting with J when the screen turns green.',
+        note: 'Letter X appears randomly — press F to dismiss it. Reaction timing still only counts the J key.',
         includeX: true,
         includeProgress: false,
         rainbow: false,
@@ -301,6 +303,7 @@
         id: 'progress',
         name: 'Set 3 · X Task + Progress Bar Game',
         intro: 'Same X task as Set 2 (press F to clear it). A progress bar at the top will slowly fill; tap SPACE to knock it back. Still press J when the screen turns green.',
+        note: 'Letter X distraction plus a filling progress bar. Press F to clear the X and Space to push the bar back.',
         includeX: true,
         includeProgress: true,
         rainbow: false,
@@ -310,6 +313,7 @@
         id: 'celebration',
         name: 'Set 4 · Rainbow Confetti Finale',
         intro: 'All previous distractions return plus celebratory confetti and a rainbow background. Remember: only press J when the screen goes green. The rainbow never uses green so the Go signal stays clear.',
+        note: 'Letter X, progress bar, and rainbow confetti all at once. Only the J key after green is recorded.',
         includeX: true,
         includeProgress: true,
         rainbow: true,
@@ -493,7 +497,7 @@
       statusEl.textContent = `Set ${currentSetIndex + 1}, trial ${trialIndex + 1}. Wait for green, then press J.`;
       awaitingGo = true;
       awaitingReaction = false;
-       clearTimeout(goTimer);
+      clearTimeout(goTimer);
       const delay = randomDelay(2000, 5000);
       goTimer = setTimeout(() => {
         awaitingGo = false;
@@ -537,7 +541,9 @@
       const average = document.createElement('p');
       average.innerHTML = `<strong>Average:</strong> ${formatMs(setRecord.average)}`;
       const note = document.createElement('p');
-      note.innerHTML = `<strong>Notes:</strong> Only J-key reaction time is recorded. ${SETS[index].includeX ? 'Letter X and other tasks are distractions only.' : 'No distractions in this baseline set.'}`;
+      const reference = SETS.find(config => config.id === setRecord.id) || SETS[index];
+      const detail = setRecord.note || reference?.note || (reference?.includeX ? 'Letter X and other tasks are distractions only.' : 'No distractions in this baseline set.');
+      note.innerHTML = `<strong>Notes:</strong> ${detail}`;
       const table = document.createElement('table');
       const thead = document.createElement('thead');
       thead.innerHTML = '<tr><th>Trial</th><th>Reaction Time</th></tr>';
@@ -639,7 +645,7 @@
       if (!sessionRecord || currentSetIndex === SETS.length - 1) {
         sessionRecord = {
           timestamp: new Date().toISOString(),
-          sets: SETS.map(set => ({ id: set.id, name: set.name, trials: [], average: null })),
+          sets: SETS.map(set => ({ id: set.id, name: set.name, note: set.note, trials: [], average: null })),
           overallAverage: null,
         };
         tables.innerHTML = '';

@@ -12,6 +12,7 @@ A self-contained reaction time tester for sports science experiments. The app ru
 - Six trials per set with automatic averages and a per-set data table on the tester page.
 - Splash instructions before each block so participants understand the current distractions.
 - Local storage of the most recent sessions for later review on a dedicated data page.
+- Tables record which distractions were active in each set so observations remain clear during analysis.
 - Offline support via a service worker so the site can run without internet once cached.
 
 ## Getting Started Locally

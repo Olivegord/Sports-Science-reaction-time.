@@ -209,6 +209,12 @@
     const emptyState = document.getElementById('emptyState');
     const tablesSection = document.getElementById('tablesSection');
     const clearButton = document.getElementById('clearButton');
+    const NOTE_LOOKUP = {
+      baseline: 'No distractions. Focus on reacting to green with the J key only.',
+      'letter-x': 'Letter X appears randomly — press F to dismiss it. Reaction timing still only counts the J key.',
+      progress: 'Letter X distraction plus a filling progress bar. Press F to clear the X and Space to push the bar back.',
+      celebration: 'Letter X, progress bar, and rainbow confetti all at once. Only the J key after green is recorded.',
+    };
 
     function formatMs(ms) {
       return `${ms.toFixed(1)} ms`;
@@ -222,6 +228,7 @@
           sets: session.sets.map(set => ({
             id: set.id || crypto.randomUUID?.() || Math.random().toString(36).slice(2),
             name: set.name || 'Unnamed Set',
+            note: typeof set.note === 'string' ? set.note : '',
             trials: Array.isArray(set.trials) ? set.trials : [],
             average: typeof set.average === 'number' ? set.average : null,
           })),
@@ -235,6 +242,7 @@
             {
               id: 'legacy',
               name: 'Legacy Session',
+              note: 'Imported from an earlier single-set run.',
               trials: session.trials,
               average,
             }
@@ -316,11 +324,18 @@
         const heading = document.createElement('h3');
         heading.textContent = set.name;
         section.appendChild(heading);
-        const meta = document.createElement('p');
-        meta.className = 'muted';
+        const averageLine = document.createElement('p');
+        averageLine.className = 'muted';
         const average = (typeof set.average === 'number' ? set.average : null) ?? (set.trials.length ? (set.trials.reduce((a, b) => a + b, 0) / set.trials.length) : null);
-        meta.textContent = average ? `Average: ${formatMs(average)}` : 'No data recorded';
-        section.appendChild(meta);
+        averageLine.textContent = average ? `Average: ${formatMs(average)}` : 'No data recorded';
+        section.appendChild(averageLine);
+        const noteText = set.note || NOTE_LOOKUP[set.id];
+        if (noteText) {
+          const noteLine = document.createElement('p');
+          noteLine.className = 'muted';
+          noteLine.textContent = `Notes: ${noteText}`;
+          section.appendChild(noteLine);
+        }
         if (set.trials.length) {
           const table = document.createElement('table');
           const thead = document.createElement('thead');
