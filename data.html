@@ -1,243 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reaction Time Data</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Session Data</title>
   <style>
     :root {
       color-scheme: light dark;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     body {
       margin: 0;
       min-height: 100vh;
+      background: linear-gradient(135deg, rgba(30, 136, 229, 0.16), rgba(106, 27, 154, 0.2));
       display: flex;
-      flex-direction: column;
       align-items: center;
-      background: linear-gradient(135deg, rgba(30, 144, 255, 0.25), rgba(138, 43, 226, 0.25));
-      color: #222;
+      justify-content: center;
+      padding: clamp(1.5rem, 5vw, 3rem);
+      color: #0f172a;
     }
 
     main {
-      max-width: 840px;
-      width: 100%;
-      padding: 3rem 1.75rem 4rem;
+      width: min(960px, 100%);
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 28px;
+      box-shadow: 0 32px 70px rgba(15, 23, 42, 0.12);
+      padding: clamp(1.75rem, 4vw, 3rem);
+      display: grid;
+      gap: 2rem;
     }
 
     h1 {
-      margin-top: 0;
-      font-size: clamp(2rem, 5vw, 3.25rem);
+      margin: 0;
+      font-size: clamp(2.2rem, 6vw, 3.3rem);
       text-align: center;
     }
 
-    h2 {
-      margin: 2.5rem 0 1rem;
-      font-size: clamp(1.5rem, 3vw, 2.25rem);
-    }
-
-    .session-meta {
+    .meta {
       text-align: center;
-      font-size: 1rem;
-      color: rgba(0, 0, 0, 0.65);
+      font-size: 1.05rem;
+      opacity: 0.7;
     }
 
-    section.set-table {
-      background: rgba(255, 255, 255, 0.92);
-      border-radius: 20px;
-      padding: 1.5rem 1.75rem;
-      box-shadow: 0 25px 55px rgba(0, 0, 0, 0.12);
-      margin-top: 1.5rem;
+    section.set {
+      background: rgba(15, 23, 42, 0.05);
+      border-radius: 22px;
+      padding: clamp(1rem, 3vw, 1.75rem);
+    }
+
+    section.set h2 {
+      margin: 0 0 0.75rem;
+      font-size: clamp(1.4rem, 4vw, 1.9rem);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 0.75rem;
     }
 
-    th,
-    td {
-      padding: 0.75rem 0.85rem;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    th, td {
+      padding: 0.6rem 0.7rem;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.1);
       text-align: left;
     }
 
-    th {
-      background: rgba(30, 144, 255, 0.18);
+    tbody tr:last-child td {
+      border-bottom: none;
     }
 
     caption {
       caption-side: bottom;
-      padding: 0.5rem 0.75rem 0;
+      padding-top: 0.6rem;
       font-size: 0.95rem;
-      color: rgba(0, 0, 0, 0.6);
+      opacity: 0.7;
     }
 
-    .notes {
-      margin: 0.5rem 0 0;
-      padding-left: 1.25rem;
-    }
-
-    .empty-state {
-      margin-top: 2rem;
+    .empty {
       text-align: center;
       font-size: 1.1rem;
+      padding: 2rem;
+      border-radius: 20px;
       background: rgba(255, 255, 255, 0.9);
-      padding: 1.5rem 1.75rem;
-      border-radius: 18px;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.1);
+      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
     }
 
     a {
-      display: inline-block;
-      margin-top: 2rem;
-      text-decoration: none;
-      color: #1e90ff;
+      color: #1e88e5;
       font-weight: 600;
+      text-decoration: none;
+      text-align: center;
     }
   </style>
 </head>
 <body>
   <main>
-    <h1>Reaction Time Session Data</h1>
-    <div id="session-meta" class="session-meta"></div>
-    <div id="tables" class="tables"></div>
-    <div id="empty-state" class="empty-state" hidden>No session data found yet. Run an experiment to record results.</div>
-    <div style="text-align: center;"><a href="index.html">Back to tester</a></div>
+    <h1>Session Data</h1>
+    <div id="meta" class="meta"></div>
+    <div id="tables"></div>
+    <div id="empty" class="empty" hidden>No saved session found yet. Run the experiment to collect data.</div>
+    <a href="index.html">Back to tester</a>
   </main>
   <script>
-    function loadSession() {
+    const loadSession = () => {
       try {
-        const raw = localStorage.getItem('reactionTimeSession');
-        if (!raw) {
-          return null;
-        }
+        const raw = window.localStorage.getItem('reactionTimeSession');
+        if (!raw) return null;
         return JSON.parse(raw);
       } catch (error) {
         console.error('Failed to parse stored session', error);
         return null;
       }
-    }
+    };
 
-    function normaliseSession(raw) {
-      if (!raw) {
-        return null;
-      }
-      if (Array.isArray(raw.sets)) {
-        return raw;
-      }
-      if (Array.isArray(raw.trials)) {
+    const normaliseSession = (data) => {
+      if (!data) return null;
+      if (Array.isArray(data.sets)) return data;
+      if (Array.isArray(data.trials)) {
         return {
-          recordedAt: raw.recordedAt || new Date().toISOString(),
+          recordedAt: data.recordedAt || new Date().toISOString(),
+          trialsPerSet: data.trials.length,
           totalSets: 1,
-          trialsPerSet: raw.trials.length,
-          overallAverage: raw.average,
+          overallAverage: data.average,
           sets: [
             {
               key: 'baseline',
-              label: 'Baseline (No Distraction)',
-              notes: ['Legacy session imported from earlier version.'],
-              trials: raw.trials,
-              average: raw.average,
+              label: 'Baseline (legacy import)',
+              trials: data.trials,
+              average: data.average,
             },
           ],
         };
       }
       return null;
-    }
+    };
 
-    function createSetSection(set, index) {
-      const section = document.createElement('section');
-      section.className = 'set-table';
+    const session = normaliseSession(loadSession());
+    const tables = document.getElementById('tables');
+    const meta = document.getElementById('meta');
+    const empty = document.getElementById('empty');
 
-      const heading = document.createElement('h2');
-      heading.textContent = `Set ${index + 1}: ${set.label}`;
-      section.appendChild(heading);
-
-      if (Array.isArray(set.notes) && set.notes.length) {
-        const notesList = document.createElement('ul');
-        notesList.className = 'notes';
-        set.notes.forEach((note) => {
-          const li = document.createElement('li');
-          li.textContent = note;
-          notesList.appendChild(li);
+    if (!session) {
+      empty.hidden = false;
+    } else {
+      const recorded = new Date(session.recordedAt);
+      meta.textContent = `Recorded ${recorded.toLocaleString()} • ${session.totalSets || session.sets.length} sets × ${session.trialsPerSet || (session.sets[0]?.trials?.length ?? 0)} trials`;
+      session.sets.forEach((set, index) => {
+        const section = document.createElement('section');
+        section.className = 'set';
+        const heading = document.createElement('h2');
+        heading.textContent = `Set ${index + 1}: ${set.label}`;
+        section.appendChild(heading);
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const headRow = document.createElement('tr');
+        ['Trial', 'Reaction time (ms)'].forEach((label) => {
+          const th = document.createElement('th');
+          th.textContent = label;
+          headRow.appendChild(th);
         });
-        section.appendChild(notesList);
+        thead.appendChild(headRow);
+        table.appendChild(thead);
+        const tbody = document.createElement('tbody');
+        (set.trials || []).forEach((trial, trialIndex) => {
+          const row = document.createElement('tr');
+          const cellIndex = document.createElement('td');
+          cellIndex.textContent = trialIndex + 1;
+          const cellValue = document.createElement('td');
+          const value = Number(trial);
+          cellValue.textContent = Number.isFinite(value) ? `${value.toFixed(1)}` : '—';
+          row.appendChild(cellIndex);
+          row.appendChild(cellValue);
+          tbody.appendChild(row);
+        });
+        table.appendChild(tbody);
+        const caption = document.createElement('caption');
+        if (typeof set.average === 'number') {
+          caption.textContent = `${set.trials.length} trials • Average ${set.average.toFixed(1)} ms`;
+        } else {
+          caption.textContent = `${set.trials.length} trials`;
+        }
+        table.appendChild(caption);
+        section.appendChild(table);
+        tables.appendChild(section);
+      });
+
+      if (typeof session.overallAverage === 'number') {
+        const overall = document.createElement('section');
+        overall.className = 'set';
+        const heading = document.createElement('h2');
+        heading.textContent = 'Overall average';
+        const para = document.createElement('p');
+        const totalTrials = Number.isFinite(session.trialsPerSet) && Number.isFinite(session.totalSets)
+          ? session.trialsPerSet * session.totalSets
+          : session.sets.reduce((sum, set) => sum + (set.trials?.length ?? 0), 0);
+        para.textContent = `${session.overallAverage.toFixed(1)} ms across ${totalTrials} trials`;
+        overall.appendChild(heading);
+        overall.appendChild(para);
+        tables.appendChild(overall);
       }
-
-      const table = document.createElement('table');
-      const thead = document.createElement('thead');
-      const headerRow = document.createElement('tr');
-      ['Trial', 'Reaction time (ms)'].forEach((heading) => {
-        const th = document.createElement('th');
-        th.textContent = heading;
-        headerRow.appendChild(th);
-      });
-      thead.appendChild(headerRow);
-      table.appendChild(thead);
-
-      const tbody = document.createElement('tbody');
-      set.trials.forEach((time, trialIndex) => {
-        const row = document.createElement('tr');
-        const trialCell = document.createElement('td');
-        trialCell.textContent = trialIndex + 1;
-        const timeCell = document.createElement('td');
-        const numericTime = typeof time === 'number' ? time : Number.parseFloat(time);
-        timeCell.textContent = Number.isFinite(numericTime) ? numericTime.toFixed(1) : '—';
-        row.appendChild(trialCell);
-        row.appendChild(timeCell);
-        tbody.appendChild(row);
-      });
-      table.appendChild(tbody);
-
-      const caption = document.createElement('caption');
-      const averageText = Number.isFinite(set.average) ? set.average.toFixed(1) : '—';
-      caption.textContent = `${set.trials.length} trials • Average reaction time ${averageText} ms`;
-      table.appendChild(caption);
-
-      section.appendChild(table);
-      return section;
     }
-
-    const sessionMeta = document.getElementById('session-meta');
-    const tablesContainer = document.getElementById('tables');
-    const emptyState = document.getElementById('empty-state');
-
-    const rawSession = loadSession();
-    const session = normaliseSession(rawSession);
-
-    if (!session || !Array.isArray(session.sets) || session.sets.length === 0) {
-      emptyState.hidden = false;
-      sessionMeta.textContent = '';
-      return;
-    }
-
-    emptyState.hidden = true;
-    const recordedDate = session.recordedAt ? new Date(session.recordedAt) : null;
-    const recordedText = recordedDate ? recordedDate.toLocaleString() : 'Unknown time';
-    const totalTrials = session.sets.reduce((sum, set) => sum + set.trials.length, 0);
-    const weightedSum = session.sets.reduce((sum, set) => sum + (Number.isFinite(set.average) ? set.average * set.trials.length : 0), 0);
-    const overallAverage = Number.isFinite(session.overallAverage)
-      ? session.overallAverage
-      : totalTrials > 0
-        ? weightedSum / totalTrials
-        : 0;
-    sessionMeta.textContent = `Recorded ${recordedText} • ${session.sets.length} set(s) • ${totalTrials} total trials • Overall average ${overallAverage.toFixed(1)} ms`;
-
-    tablesContainer.innerHTML = '';
-    session.sets.forEach((set, index) => {
-      tablesContainer.appendChild(createSetSection(set, index));
-    });
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker
-          .register('./sw.js')
-          .catch((error) => {
-            console.error('Service worker registration failed:', error);
-          });
+        navigator.serviceWorker.register('sw.js').catch((error) => {
+          console.error('Service worker registration failed', error);
+        });
       });
     }
   </script>

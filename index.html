@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reaction Time Tester</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       color-scheme: light dark;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    * {
+    *, *::before, *::after {
       box-sizing: border-box;
     }
 
@@ -18,30 +21,29 @@
       margin: 0;
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      background-color: #f5f5f5;
-      color: #222;
-      transition: background-color 150ms ease-in-out, color 150ms ease-in-out;
-      overflow-x: hidden;
+      flex-direction: column;
+      background: #f4f5fb;
+      color: #111;
+      transition: background-color 180ms ease, color 180ms ease;
     }
 
     body.waiting {
-      background-color: #b22222;
+      background: #b71c1c;
       color: #fff;
     }
 
     body.ready {
-      background-color: #228b22;
+      background: #1b5e20;
       color: #fff;
     }
 
     body.rainbow-mode {
-      color: #fff;
       background: linear-gradient(120deg, #ff0048, #ff7f00, #ffd300, #8f00ff, #0057ff);
       background-size: 400% 400%;
-      animation: rainbowShift 16s linear infinite;
+      animation: rainbow-pan 15s linear infinite;
+      color: #fff;
     }
 
     body.rainbow-mode.waiting,
@@ -49,812 +51,632 @@
       animation: none;
     }
 
-    body.rainbow-mode.waiting {
-      background: #b22222;
-    }
-
-    body.rainbow-mode.ready {
-      background: #228b22;
-    }
-
-
-    @keyframes rainbowShift {
-      0% {
-        background-position: 0% 50%;
-      }
-      50% {
-        background-position: 100% 50%;
-      }
-      100% {
-        background-position: 0% 50%;
-      }
+    @keyframes rainbow-pan {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     main {
-      max-width: 760px;
-      padding: 2.5rem 1.75rem 3rem;
+      width: min(92vw, 820px);
+      margin: 3rem auto;
+      padding: clamp(1.5rem, 4vw, 2.75rem);
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 28px;
+      box-shadow: 0 32px 70px rgba(15, 23, 42, 0.12);
       text-align: center;
-      background: rgba(255, 255, 255, 0.85);
-      border-radius: 24px;
-      box-shadow: 0 20px 55px rgba(0, 0, 0, 0.12);
-      backdrop-filter: blur(6px);
-      margin: 2rem;
+      position: relative;
+      overflow: hidden;
     }
 
     body.waiting main,
     body.ready main {
-      background: rgba(0, 0, 0, 0.25);
-      color: #fff;
-    }
-
-    body.rainbow-mode main {
-      background: rgba(20, 20, 20, 0.5);
-    }
-
-    h1 {
-      margin-bottom: 0.5rem;
-      font-size: clamp(2rem, 5vw, 3.25rem);
-    }
-
-    p {
-      margin: 0.5rem 0;
-      line-height: 1.6;
-    }
-
-    #set-notes {
-      margin: 1rem auto 1.5rem;
-      max-width: 640px;
-      text-align: left;
-      background: rgba(30, 144, 255, 0.12);
-      border-radius: 16px;
-      padding: 1rem 1.25rem;
+      background: rgba(0, 0, 0, 0.45);
       color: inherit;
     }
 
-    body.waiting #set-notes,
-    body.ready #set-notes,
-    body.rainbow-mode #set-notes {
+    body.rainbow-mode main {
       background: rgba(0, 0, 0, 0.35);
       color: #fff;
     }
 
-    #set-notes ul {
-      padding-left: 1.25rem;
-      margin: 0.5rem 0 0;
+    h1 {
+      margin: 0 0 0.75rem;
+      font-size: clamp(2.2rem, 6vw, 3.4rem);
+      font-weight: 700;
     }
 
-    #set-notes li + li {
-      margin-top: 0.4rem;
+    p {
+      margin: 0.5rem 0 0;
+      line-height: 1.6;
+      font-size: 1.05rem;
+    }
+
+    #status {
+      margin: 1.5rem 0 0;
+      font-size: clamp(1.1rem, 3vw, 1.5rem);
+      font-weight: 600;
     }
 
     button {
-      margin-top: 1.5rem;
-      padding: 0.85rem 2.75rem;
-      font-size: 1.15rem;
       border: none;
       border-radius: 999px;
-      background: linear-gradient(135deg, #1e90ff, #6a5acd);
+      padding: 0.9rem 2.8rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #1e88e5, #6a1b9a);
       color: #fff;
       cursor: pointer;
-      transition: transform 120ms ease-in-out, box-shadow 120ms ease-in-out;
-    }
-
-    button:hover:enabled {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 18px rgba(30, 144, 255, 0.35);
+      margin-top: 2rem;
+      transition: transform 140ms ease, box-shadow 140ms ease;
     }
 
     button:disabled {
-      opacity: 0.65;
+      opacity: 0.55;
       cursor: not-allowed;
     }
 
-    .results {
-      margin-top: 1.25rem;
-      font-size: 1.1rem;
-      min-height: 1.5rem;
+    button:hover:enabled {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 36px rgba(30, 136, 229, 0.3);
     }
 
-    .set-results {
-      margin-top: 2rem;
+    #results {
+      margin-top: 2.5rem;
       display: grid;
-      gap: 1.5rem;
+      gap: 1.75rem;
     }
 
-    .set-summary {
+    .set-card {
+      background: rgba(30, 41, 59, 0.06);
+      border-radius: 22px;
+      padding: 1.5rem 1.75rem;
       text-align: left;
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 16px;
-      padding: 1.25rem 1.5rem;
-      box-shadow: 0 14px 45px rgba(0, 0, 0, 0.12);
     }
 
-    body.waiting .set-summary,
-    body.ready .set-summary,
-    body.rainbow-mode .set-summary {
-      background: rgba(0, 0, 0, 0.45);
-      color: #fff;
-      box-shadow: 0 14px 45px rgba(0, 0, 0, 0.35);
+    body.waiting .set-card,
+    body.ready .set-card {
+      background: rgba(255, 255, 255, 0.07);
     }
 
-    .set-summary h2 {
-      margin: 0 0 0.75rem;
+    body.rainbow-mode .set-card {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .set-card h2 {
+      margin: 0;
       font-size: 1.35rem;
     }
 
-    table {
+    .set-card table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 0.75rem;
+      margin-top: 0.9rem;
     }
 
-    th,
-    td {
-      padding: 0.6rem 0.75rem;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-      text-align: left;
+    .set-card th,
+    .set-card td {
+      padding: 0.55rem 0.6rem;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+      font-size: 0.95rem;
     }
 
-    body.waiting th,
-    body.waiting td,
-    body.ready th,
-    body.ready td,
-    body.rainbow-mode th,
-    body.rainbow-mode td {
-      border-color: rgba(255, 255, 255, 0.25);
+    .set-card tbody tr:last-child td {
+      border-bottom: none;
     }
 
-    th {
-      background: rgba(30, 144, 255, 0.18);
-    }
-
-    body.waiting th,
-    body.ready th,
-    body.rainbow-mode th {
-      background: rgba(255, 255, 255, 0.18);
-    }
-
-    caption {
+    .set-card caption {
       caption-side: bottom;
-      padding: 0.5rem 0.75rem 0;
-      font-size: 0.95rem;
-      color: rgba(0, 0, 0, 0.65);
+      text-align: left;
+      padding-top: 0.75rem;
+      font-size: 0.9rem;
+      opacity: 0.75;
     }
 
-    body.waiting caption,
-    body.ready caption,
-    body.rainbow-mode caption {
-      color: rgba(255, 255, 255, 0.75);
-    }
-
-    .link-row {
-      margin-top: 2rem;
-      font-size: 0.95rem;
-    }
-
-    a {
-      color: inherit;
-    }
-
-    #distraction-letter {
+    #next-set-overlay {
       position: fixed;
-      top: 18%;
-      right: 8%;
-      font-size: clamp(4rem, 12vw, 8rem);
-      font-weight: 700;
-      color: rgba(0, 0, 0, 0.85);
-      text-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-      opacity: 0;
-      transform: scale(0.9);
-      transition: opacity 140ms ease-out, transform 140ms ease-out;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.72);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      text-align: center;
+      z-index: 50;
+    }
+
+    #next-set-overlay[hidden] {
+      display: none;
+    }
+
+    .overlay-card {
+      background: rgba(15, 23, 42, 0.88);
+      border-radius: 30px;
+      padding: clamp(1.75rem, 4vw, 3rem);
+      width: min(92vw, 560px);
+      display: grid;
+      gap: 1rem;
+    }
+
+    .overlay-card h2 {
+      margin: 0;
+      font-size: clamp(1.65rem, 4vw, 2.4rem);
+    }
+
+    .overlay-card ul {
+      margin: 0;
+      padding-left: 1.3rem;
+      text-align: left;
+      display: grid;
+      gap: 0.5rem;
+      font-size: 1.05rem;
+    }
+
+    #distraction-layer {
+      position: absolute;
+      inset: 0;
       pointer-events: none;
-      z-index: 10;
+      display: grid;
+      place-items: center;
     }
 
-    body.waiting #distraction-letter,
-    body.ready #distraction-letter,
-    body.rainbow-mode #distraction-letter {
-      color: rgba(255, 255, 255, 0.9);
-      text-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    #letter-x {
+      font-size: clamp(4rem, 16vw, 10rem);
+      font-weight: 700;
+      letter-spacing: 0.1rem;
+      opacity: 0;
+      transition: opacity 120ms ease;
     }
 
-    #distraction-letter.visible {
+    #letter-x.visible {
       opacity: 1;
-      transform: scale(1);
     }
 
-    #progress-bar {
-      position: fixed;
+    #progress-track {
+      position: absolute;
       top: 0;
       left: 0;
       width: 100%;
-      height: 12px;
-      background: rgba(0, 0, 0, 0.1);
-      transform: scaleY(0);
-      transform-origin: top;
-      transition: transform 160ms ease-out;
-      z-index: 9;
-      pointer-events: none;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 0 0 18px 18px;
+      overflow: hidden;
     }
 
-    #progress-bar.active {
-      transform: scaleY(1);
-    }
-
-    #progress-bar .fill {
+    #progress-bar {
       width: 0%;
       height: 100%;
-      background: linear-gradient(90deg, #ff0048, #ff7f00, #8f00ff);
-      transition: width 120ms linear;
-    }
-
-    #confetti-container {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      overflow: hidden;
-      z-index: 8;
-      opacity: 0;
-      transition: opacity 260ms ease-in-out;
-    }
-
-    #confetti-container.active {
-      opacity: 1;
+      background: linear-gradient(90deg, #ff4081, #651fff);
+      transition: width 120ms ease;
     }
 
     .confetti-piece {
       position: absolute;
-      top: -12vh;
-      width: 0.6rem;
-      height: 1.2rem;
-      border-radius: 0.2rem;
-      opacity: 0.85;
-      animation: confettiFall var(--duration) linear infinite;
-      animation-delay: var(--delay);
-      left: var(--left);
+      width: 12px;
+      height: 18px;
+      border-radius: 4px;
+      opacity: 0;
+      animation: confetti-fall 3.8s linear infinite;
     }
 
-    @keyframes confettiFall {
-      0% {
-        transform: translate3d(0, -5vh, 0) rotateZ(0deg);
-      }
-      100% {
-        transform: translate3d(0, 120vh, 0) rotateZ(360deg);
-      }
+    @keyframes confetti-fall {
+      0% { transform: translateY(-120%) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      100% { transform: translateY(130vh) rotate(360deg); opacity: 0; }
+    }
+
+    footer {
+      margin-top: 2.5rem;
+      font-size: 0.95rem;
+    }
+
+    footer a {
+      color: inherit;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
-  <div id="progress-bar" aria-hidden="true"><div class="fill" id="progress-fill"></div></div>
-  <div id="confetti-container" aria-hidden="true"></div>
-  <div id="distraction-letter" aria-hidden="true"></div>
+  <div id="next-set-overlay" role="dialog" aria-modal="true">
+    <div class="overlay-card">
+      <h2 id="overlay-title">Welcome!</h2>
+      <p id="overlay-summary">Press start to begin the baseline trials.</p>
+      <ul id="overlay-tips"></ul>
+      <button id="start-set">Start set</button>
+    </div>
+  </div>
   <main>
-    <h1>Multi-condition Reaction Time Tester</h1>
-    <p id="instructions">
-      This experiment contains four distraction conditions. Each condition has six trials measuring how fast you press the
-      <strong>J</strong> key after the screen turns green. Follow the on-screen guidance for each set.
-    </p>
-    <div id="set-notes" hidden></div>
-    <button id="start">Begin Experiment</button>
-    <div class="results" id="results" aria-live="polite"></div>
-    <div class="set-results" id="set-results" aria-live="polite"></div>
-    <div class="link-row"><a href="data.html">View saved session tables</a></div>
+    <div id="distraction-layer" aria-hidden="true"></div>
+    <h1>Reaction Time Tester</h1>
+    <p>Wait for the screen to turn green, then press the <kbd>J</kbd> key as fast as you can.</p>
+    <p id="status">Follow the on-screen instructions to begin.</p>
+    <button id="retry" hidden>Restart experiment</button>
+    <section id="results" aria-live="polite"></section>
+    <footer>
+      <a href="data.html">View stored data</a>
+    </footer>
   </main>
   <script>
-    const TRIALS_PER_SET = 6;
-    const MIN_DELAY = 1000;
-    const MAX_DELAY = 3000;
-    const LETTER_MIN_DELAY = 1400;
-    const LETTER_MAX_DELAY = 2800;
+    const trialsPerSet = 6;
 
-    const experimentSets = [
+    const randomDelay = (min, max) => Math.random() * (max - min) + min;
+
+    const overlay = document.getElementById('next-set-overlay');
+    const overlayTitle = document.getElementById('overlay-title');
+    const overlaySummary = document.getElementById('overlay-summary');
+    const overlayTips = document.getElementById('overlay-tips');
+    const startSetButton = document.getElementById('start-set');
+    const statusEl = document.getElementById('status');
+    const resultsContainer = document.getElementById('results');
+    const distractionLayer = document.getElementById('distraction-layer');
+    const retryButton = document.getElementById('retry');
+
+    const createLetterDistraction = () => {
+      const letter = document.createElement('div');
+      letter.id = 'letter-x';
+      letter.textContent = 'X';
+      distractionLayer.appendChild(letter);
+      let timeoutId = null;
+
+      const scheduleShow = () => {
+        timeoutId = window.setTimeout(() => {
+          letter.classList.add('visible');
+        }, randomDelay(1100, 2600));
+      };
+
+      scheduleShow();
+
+      return {
+        onKey(event) {
+          if (event.key.toLowerCase() === 'f' && letter.classList.contains('visible')) {
+            letter.classList.remove('visible');
+            window.clearTimeout(timeoutId);
+            scheduleShow();
+          }
+        },
+        cleanup() {
+          window.clearTimeout(timeoutId);
+          letter.remove();
+        }
+      };
+    };
+
+    const createProgressBarDistraction = () => {
+      const track = document.createElement('div');
+      track.id = 'progress-track';
+      const bar = document.createElement('div');
+      bar.id = 'progress-bar';
+      track.appendChild(bar);
+      distractionLayer.appendChild(track);
+
+      let progress = 0;
+      let animationId = null;
+      let lastTime = null;
+
+      const tick = (timestamp) => {
+        if (lastTime === null) {
+          lastTime = timestamp;
+        }
+        const delta = (timestamp - lastTime) / 1000;
+        lastTime = timestamp;
+        progress = Math.min(1, progress + delta * 0.08);
+        bar.style.width = `${(progress * 100).toFixed(1)}%`;
+        animationId = window.requestAnimationFrame(tick);
+      };
+
+      animationId = window.requestAnimationFrame(tick);
+
+      return {
+        onKey(event) {
+          if (event.code === 'Space') {
+            progress = Math.max(0, progress - 0.18);
+            bar.style.width = `${(progress * 100).toFixed(1)}%`;
+          }
+        },
+        cleanup() {
+          window.cancelAnimationFrame(animationId);
+          track.remove();
+        }
+      };
+    };
+
+    const createConfettiDistraction = () => {
+      const colors = ['#ff0048', '#ff7f00', '#ffd300', '#8f00ff', '#0057ff'];
+      const pieces = [];
+      for (let i = 0; i < 45; i += 1) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.animationDelay = `${Math.random() * 3.5}s`;
+        piece.style.background = colors[i % colors.length];
+        distractionLayer.appendChild(piece);
+        pieces.push(piece);
+      }
+
+      document.body.classList.add('rainbow-mode');
+
+      return {
+        cleanup() {
+          pieces.forEach((piece) => piece.remove());
+          document.body.classList.remove('rainbow-mode');
+        }
+      };
+    };
+
+    const sets = [
       {
         key: 'baseline',
-        label: 'Baseline (No Distraction)',
-        introHtml:
-          '<p><strong>Set 1: Baseline (No Distraction)</strong></p>' +
-          '<p>Focus only on the screen changing colour. When it turns green, press the <strong>J</strong> key as quickly as you can.</p>' +
-          `<p>You will complete ${TRIALS_PER_SET} trials in this set.</p>`,
-        notes: [
-          'Watch for the whole background turning green.',
-          `Press the J key as quickly as you can each time.`,
-          `There are ${TRIALS_PER_SET} trials in this condition.`,
+        label: 'Baseline — no distraction',
+        summary: 'Measure your raw reaction time with no extras.',
+        tips: [
+          'Wait for the screen to turn green, then tap the J key immediately.',
+          'Six trials will run back-to-back with random delays.',
         ],
-        waitingMessage: (trial, total) => `Set 1 · Trial ${trial} of ${total}: Wait for green, then press J.`,
-        readyMessage: (trial, total) => `Set 1 · Trial ${trial} of ${total}: Press J now!`,
-        features: { letter: false, progress: false, confetti: false, rainbow: false },
       },
       {
-        key: 'letter',
-        label: 'Distraction: Tap F when X appears',
-        introHtml:
-          '<p><strong>Set 2: Letter distraction</strong></p>' +
-          '<p>While you keep reacting to the screen turning green with the <strong>J</strong> key, an extra <strong>X</strong> will pop up.</p>' +
-          '<p>Whenever the big X appears, press the <strong>F</strong> key to hide it. The timing of the X does not affect the J-key measurement.</p>',
-        notes: [
-          'Press J when the background turns green — that is the only time recorded.',
-          'When a large X appears, tap F to hide it. It will reappear after a random delay.',
-          `There are ${TRIALS_PER_SET} trials in this condition.`,
+        key: 'letter-x',
+        label: 'Letter patrol — press F for the X',
+        summary: 'Keep an eye out for the giant X while you still react with J.',
+        tips: [
+          'When the X appears, press the F key to hide it.',
+          'The X returns on its own timer, separate from the green screen.',
         ],
-        waitingMessage: (trial, total) => `Set 2 · Trial ${trial} of ${total}: Wait for green, then press J.`,
-        readyMessage: (trial, total) => `Set 2 · Trial ${trial} of ${total}: Press J now!`,
-        features: { letter: true, progress: false, confetti: false, rainbow: false },
+        setup: () => createLetterDistraction(),
       },
       {
         key: 'letter-progress',
-        label: 'Distraction: Letter + Progress Bar game',
-        introHtml:
-          '<p><strong>Set 3: Letter distraction with progress bar</strong></p>' +
-          '<p>You still react with the <strong>J</strong> key when the screen turns green and press <strong>F</strong> when the X appears.</p>' +
-          '<p>A progress bar will slowly fill across the top. Tap the <strong>Space bar</strong> to push it back down whenever you notice it rising.</p>',
-        notes: [
-          'Keep reacting to green with J — only J is measured.',
-          'When you see the X, press F to make it disappear.',
-          'Tap the space bar to knock the progress bar back when it climbs.',
-          `There are ${TRIALS_PER_SET} trials in this condition.`,
+        label: 'Letter + progress bar game',
+        summary: 'Manage the X and keep the progress bar from filling up.',
+        tips: [
+          'Press F to hide the X whenever it appears.',
+          'Tap the space bar to push the progress bar back down.',
+          'Reaction times are still recorded on the J key only.',
         ],
-        waitingMessage: (trial, total) => `Set 3 · Trial ${trial} of ${total}: Wait for green, then press J.`,
-        readyMessage: (trial, total) => `Set 3 · Trial ${trial} of ${total}: Press J now!`,
-        features: { letter: true, progress: true, confetti: false, rainbow: false },
+        setup: () => {
+          const letter = createLetterDistraction();
+          const progress = createProgressBarDistraction();
+          return {
+            onKey(event) {
+              letter.onKey?.(event);
+              progress.onKey?.(event);
+            },
+            cleanup() {
+              letter.cleanup?.();
+              progress.cleanup?.();
+            }
+          };
+        },
       },
       {
-        key: 'ultimate-finale',
-        label: 'Distraction: Rainbow celebration',
-        introHtml:
-          '<p><strong>Set 4: Rainbow celebration</strong></p>' +
-          '<p>The room goes full celebration mode with confetti and a rainbow backdrop. Continue reacting with <strong>J</strong> when the background turns green.</p>' +
-          '<p>The large X and progress bar mini-task remain as before: press <strong>F</strong> for the X and tap <strong>Space</strong> to keep the bar in check.</p>' +
-          '<p>The rainbow never turns green so the green flash is still your go-signal.</p>',
-        notes: [
-          'Keep pressing J as soon as the background flashes green — that is what is measured.',
-          'Tap F when the large X appears.',
-          'Use the space bar to push the progress bar back.',
-          'Enjoy the confetti and rainbow background — they are distractions only.',
+        key: 'confetti',
+        label: 'Confetti carnival',
+        summary: 'All distractions combined with a rainbow confetti celebration.',
+        tips: [
+          'Press F to clear the X, use Space to push back the progress bar, and hit J on green.',
+          'Rainbow colours never turn green to avoid confusion with the go signal.',
         ],
-        waitingMessage: (trial, total) => `Set 4 · Trial ${trial} of ${total}: Wait for green, then press J.`,
-        readyMessage: (trial, total) => `Set 4 · Trial ${trial} of ${total}: Press J now!`,
-        features: { letter: true, progress: true, confetti: true, rainbow: true },
+        setup: () => {
+          const letter = createLetterDistraction();
+          const progress = createProgressBarDistraction();
+          const confetti = createConfettiDistraction();
+          return {
+            onKey(event) {
+              letter.onKey?.(event);
+              progress.onKey?.(event);
+            },
+            cleanup() {
+              letter.cleanup?.();
+              progress.cleanup?.();
+              confetti.cleanup?.();
+            }
+          };
+        },
       },
     ];
 
-    const startButton = document.getElementById('start');
-    const instructions = document.getElementById('instructions');
-    const results = document.getElementById('results');
-    const setResultsContainer = document.getElementById('set-results');
-    const setNotes = document.getElementById('set-notes');
-    const letterElement = document.getElementById('distraction-letter');
-    const progressBar = document.getElementById('progress-bar');
-    const progressFill = document.getElementById('progress-fill');
-    const confettiContainer = document.getElementById('confetti-container');
+    const session = {
+      recordedAt: new Date().toISOString(),
+      trialsPerSet,
+      totalSets: sets.length,
+      sets: sets.map(({ key, label }) => ({ key, label, trials: [], average: null })),
+      overallAverage: null,
+    };
 
-    let phase = 'idle';
-    let state = 'idle';
-    let currentSetIndex = 0;
+    let activeSetIndex = 0;
+    let activeDistraction = null;
     let trialIndex = 0;
-    let trialTimes = [];
-    let sessionResults = [];
-    let waitTimeoutId = null;
-    let betweenTimeoutId = null;
-    let letterTimeoutId = null;
-    let progressIntervalId = null;
-    let startTime = null;
-    let letterVisible = false;
-    let progressValue = 0;
+    let ready = false;
+    let startTime = 0;
+    let delayTimeout = null;
+    let cooldownTimeout = null;
 
-    function renderNotes(notes) {
-      if (!notes || !notes.length) {
-        setNotes.innerHTML = '';
-        setNotes.hidden = true;
-        return;
+    const formatTime = (value) => `${value.toFixed(1)} ms`;
+
+    const renderResults = () => {
+      resultsContainer.innerHTML = '';
+      session.sets.forEach((set, index) => {
+        const card = document.createElement('article');
+        card.className = 'set-card';
+        const title = document.createElement('h2');
+        title.textContent = `Set ${index + 1}: ${set.label}`;
+        card.appendChild(title);
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const headRow = document.createElement('tr');
+        ['Trial', 'Reaction time (ms)'].forEach((text) => {
+          const th = document.createElement('th');
+          th.textContent = text;
+          headRow.appendChild(th);
+        });
+        thead.appendChild(headRow);
+        table.appendChild(thead);
+        const tbody = document.createElement('tbody');
+        for (let t = 0; t < trialsPerSet; t += 1) {
+          const row = document.createElement('tr');
+          const trialCell = document.createElement('td');
+          trialCell.textContent = t + 1;
+          const timeCell = document.createElement('td');
+          if (set.trials[t] != null) {
+            timeCell.textContent = formatTime(set.trials[t]);
+          } else {
+            timeCell.textContent = '—';
+          }
+          row.appendChild(trialCell);
+          row.appendChild(timeCell);
+          tbody.appendChild(row);
+        }
+        table.appendChild(tbody);
+        const caption = document.createElement('caption');
+        caption.textContent = set.average != null
+          ? `${trialsPerSet} trials • Average ${formatTime(set.average)}`
+          : `${trialsPerSet} trials`;
+        table.appendChild(caption);
+        card.appendChild(table);
+        resultsContainer.appendChild(card);
+      });
+
+      const recordedTimes = session.sets.flatMap((set) => set.trials);
+      if (recordedTimes.length === sets.length * trialsPerSet) {
+        const overall = recordedTimes.reduce((sum, value) => sum + value, 0) / recordedTimes.length;
+        session.overallAverage = overall;
       }
-      const list = notes.map((note) => `<li>${note}</li>`).join('');
-      setNotes.innerHTML = `<strong>Remember:</strong><ul>${list}</ul>`;
-      setNotes.hidden = false;
-    }
+      window.localStorage.setItem('reactionTimeSession', JSON.stringify(session));
+    };
 
-    function randomBetween(min, max) {
-      return Math.random() * (max - min) + min;
-    }
+    const showOverlay = () => {
+      const current = sets[activeSetIndex];
+      overlayTitle.textContent = activeSetIndex === 0 ? 'Welcome!' : `Next up: Set ${activeSetIndex + 1}`;
+      overlaySummary.textContent = current.summary;
+      overlayTips.innerHTML = '';
+      (current.tips || []).forEach((tip) => {
+        const li = document.createElement('li');
+        li.textContent = tip;
+        overlayTips.appendChild(li);
+      });
+      overlay.hidden = false;
+      startSetButton.focus();
+    };
 
-    function clearAllTimers() {
-      clearTimeout(waitTimeoutId);
-      clearTimeout(letterTimeoutId);
-      clearTimeout(betweenTimeoutId);
-      clearInterval(progressIntervalId);
-      waitTimeoutId = null;
-      letterTimeoutId = null;
-      betweenTimeoutId = null;
-      progressIntervalId = null;
-    }
-
-    function setBodyState(mode) {
-      document.body.classList.remove('waiting', 'ready');
-      if (mode) {
-        document.body.classList.add(mode);
+    const beginSet = () => {
+      overlay.hidden = true;
+      const current = sets[activeSetIndex];
+      statusEl.textContent = `Set ${activeSetIndex + 1} of ${sets.length}. Wait for green.`;
+      trialIndex = 0;
+      if (activeDistraction?.cleanup) {
+        activeDistraction.cleanup();
+        activeDistraction = null;
       }
-    }
-
-    function currentConfig() {
-      return experimentSets[currentSetIndex];
-    }
-
-    function startLetterDistraction() {
-      letterElement.classList.add('active');
-      hideLetter();
-      scheduleLetter();
-    }
-
-    function stopLetterDistraction() {
-      clearTimeout(letterTimeoutId);
-      letterTimeoutId = null;
-      hideLetter();
-      letterElement.classList.remove('active');
-    }
-
-    function scheduleLetter() {
-      clearTimeout(letterTimeoutId);
-      const delay = randomBetween(LETTER_MIN_DELAY, LETTER_MAX_DELAY);
-      letterTimeoutId = setTimeout(() => {
-        letterVisible = true;
-        letterElement.textContent = 'X';
-        letterElement.classList.add('visible');
-      }, delay);
-    }
-
-    function hideLetter() {
-      letterVisible = false;
-      letterElement.textContent = '';
-      letterElement.classList.remove('visible');
-    }
-
-    function startProgressDistraction() {
-      progressValue = 0;
-      updateProgressBar();
-      progressBar.classList.add('active');
-      clearInterval(progressIntervalId);
-      progressIntervalId = setInterval(() => {
-        progressValue = Math.min(100, progressValue + 0.45);
-        updateProgressBar();
-      }, 120);
-    }
-
-    function stopProgressDistraction() {
-      progressBar.classList.remove('active');
-      clearInterval(progressIntervalId);
-      progressIntervalId = null;
-      progressValue = 0;
-      updateProgressBar();
-    }
-
-    function updateProgressBar() {
-      progressFill.style.width = `${progressValue}%`;
-    }
-
-    function startConfetti() {
-      confettiContainer.innerHTML = '';
-      const colors = ['#ff0048', '#ff7f00', '#ffd300', '#8f00ff', '#0057ff'];
-      const pieceCount = 90;
-      for (let i = 0; i < pieceCount; i += 1) {
-        const piece = document.createElement('span');
-        piece.className = 'confetti-piece';
-        piece.style.setProperty('--left', `${Math.random() * 100}%`);
-        piece.style.setProperty('--delay', `${Math.random() * 4}s`);
-        piece.style.setProperty('--duration', `${4 + Math.random() * 3}s`);
-        piece.style.backgroundColor = colors[i % colors.length];
-        confettiContainer.appendChild(piece);
-      }
-      confettiContainer.classList.add('active');
-    }
-
-    function stopConfetti() {
-      confettiContainer.classList.remove('active');
-      confettiContainer.innerHTML = '';
-    }
-
-    function stopDistractions() {
-      stopLetterDistraction();
-      stopProgressDistraction();
-      stopConfetti();
-      document.body.classList.remove('rainbow-mode');
-    }
-
-    function activateDistractions(features) {
-      if (features.rainbow) {
-        document.body.classList.add('rainbow-mode');
+      if (current.setup) {
+        activeDistraction = current.setup();
       } else {
-        document.body.classList.remove('rainbow-mode');
+        activeDistraction = null;
       }
-      if (features.letter) {
-        startLetterDistraction();
-      } else {
-        stopLetterDistraction();
-      }
-      if (features.progress) {
-        startProgressDistraction();
-      } else {
-        stopProgressDistraction();
-      }
-      if (features.confetti) {
-        startConfetti();
-      } else {
-        stopConfetti();
-      }
-    }
+      scheduleNextTrial();
+    };
 
-    function scheduleTrial() {
-      const config = currentConfig();
-      state = 'waiting';
-      setBodyState('waiting');
-      instructions.innerHTML = config.waitingMessage(trialIndex + 1, TRIALS_PER_SET);
-      const delay = randomBetween(MIN_DELAY, MAX_DELAY);
-      waitTimeoutId = setTimeout(() => {
-        state = 'ready';
-        setBodyState('ready');
-        instructions.innerHTML = config.readyMessage(trialIndex + 1, TRIALS_PER_SET);
+    const scheduleNextTrial = () => {
+      window.clearTimeout(delayTimeout);
+      window.clearTimeout(cooldownTimeout);
+      ready = false;
+      document.body.classList.remove('ready');
+      document.body.classList.add('waiting');
+      statusEl.textContent = 'Wait for green…';
+      delayTimeout = window.setTimeout(() => {
+        document.body.classList.remove('waiting');
+        document.body.classList.add('ready');
+        statusEl.textContent = 'Press J now!';
         startTime = performance.now();
-      }, delay);
-    }
+        ready = true;
+      }, randomDelay(1500, 3500));
+    };
 
-    function buildSetTable(config, times, average) {
-      const wrapper = document.createElement('section');
-      wrapper.className = 'set-summary';
-
-      const heading = document.createElement('h2');
-      heading.textContent = `${config.label} — Average ${average.toFixed(1)} ms`;
-      wrapper.appendChild(heading);
-
-      const table = document.createElement('table');
-      const thead = document.createElement('thead');
-      const headerRow = document.createElement('tr');
-      ['Trial', 'Reaction time (ms)'].forEach((headingText) => {
-        const th = document.createElement('th');
-        th.textContent = headingText;
-        headerRow.appendChild(th);
-      });
-      thead.appendChild(headerRow);
-      table.appendChild(thead);
-
-      const tbody = document.createElement('tbody');
-      times.forEach((time, index) => {
-        const row = document.createElement('tr');
-        const trialCell = document.createElement('td');
-        trialCell.textContent = index + 1;
-        const timeCell = document.createElement('td');
-        timeCell.textContent = time.toFixed(1);
-        row.appendChild(trialCell);
-        row.appendChild(timeCell);
-        tbody.appendChild(row);
-      });
-      table.appendChild(tbody);
-
-      const caption = document.createElement('caption');
-      caption.textContent = `${times.length} trials • Average reaction time ${average.toFixed(1)} ms`;
-      table.appendChild(caption);
-
-      wrapper.appendChild(table);
-      return wrapper;
-    }
-
-    function completeSet() {
-      clearTimeout(waitTimeoutId);
-      clearTimeout(betweenTimeoutId);
-      waitTimeoutId = null;
-      betweenTimeoutId = null;
-      const config = currentConfig();
-      const average = trialTimes.reduce((sum, value) => sum + value, 0) / trialTimes.length;
-      results.textContent = `Set ${currentSetIndex + 1} average: ${average.toFixed(1)} ms.`;
-      const setSummary = buildSetTable(config, trialTimes, average);
-      setResultsContainer.appendChild(setSummary);
-      renderNotes([]);
-
-      sessionResults[currentSetIndex] = {
-        key: config.key,
-        label: config.label,
-        notes: [...config.notes],
-        trials: [...trialTimes],
-        average,
-      };
-
-      stopDistractions();
-      setBodyState(null);
-      state = 'idle';
-
-      if (currentSetIndex === experimentSets.length - 1) {
-        finishExperiment();
-        return;
+    const finishSet = () => {
+      document.body.classList.remove('waiting', 'ready');
+      ready = false;
+      if (activeDistraction?.cleanup) {
+        activeDistraction.cleanup();
+        activeDistraction = null;
       }
-
-      phase = 'setComplete';
-      instructions.innerHTML =
-        `Completed ${config.label}. Click the button to review instructions for the next condition.`;
-      startButton.textContent = `Next: ${experimentSets[currentSetIndex + 1].label}`;
-      startButton.disabled = false;
-    }
-
-    function finishExperiment() {
-      phase = 'experimentComplete';
-      const recordedSets = sessionResults.filter(Boolean);
-      const overallTimes = recordedSets.flatMap((set) => set.trials);
-      const overallAverage =
-        overallTimes.length > 0
-          ? overallTimes.reduce((sum, value) => sum + value, 0) / overallTimes.length
-          : 0;
-      instructions.innerHTML =
-        `All ${experimentSets.length} sets complete! Overall average reaction time: ${overallAverage.toFixed(1)} ms.`;
-      results.textContent = 'Your tables below show each set separately. Data saved for the data viewer.';
-      renderNotes([]);
-      startButton.textContent = 'Run Experiment Again';
-      startButton.disabled = false;
-
-      const payload = {
-        recordedAt: new Date().toISOString(),
-        totalSets: experimentSets.length,
-        trialsPerSet: TRIALS_PER_SET,
-        overallAverage,
-        sets: recordedSets,
-      };
-      try {
-        localStorage.setItem('reactionTimeSession', JSON.stringify(payload));
-      } catch (error) {
-        console.error('Failed to store session data:', error);
+      const setData = session.sets[activeSetIndex];
+      if (setData.trials.length) {
+        const average = setData.trials.reduce((sum, value) => sum + value, 0) / setData.trials.length;
+        setData.average = average;
       }
-    }
+      renderResults();
 
-    function startSet() {
-      clearAllTimers();
-      phase = 'running';
-      state = 'idle';
-      trialIndex = 0;
-      trialTimes = [];
-      results.textContent = '';
-      setBodyState(null);
-      startButton.disabled = true;
-      const config = currentConfig();
-      renderNotes(config.notes);
-      activateDistractions(config.features);
-      scheduleTrial();
-    }
-
-    function showSetIntro() {
-      clearAllTimers();
-      stopDistractions();
-      trialTimes = [];
-      trialIndex = 0;
-      state = 'idle';
-      const config = currentConfig();
-      instructions.innerHTML = config.introHtml;
-      renderNotes(config.notes);
-      startButton.textContent = `Start Set ${currentSetIndex + 1}`;
-      startButton.disabled = false;
-      phase = 'intro';
-      setBodyState(null);
-    }
-
-    function resetExperiment() {
-      clearAllTimers();
-      stopDistractions();
-      state = 'idle';
-      phase = 'idle';
-      currentSetIndex = 0;
-      trialIndex = 0;
-      trialTimes = [];
-      sessionResults = new Array(experimentSets.length);
-      setResultsContainer.innerHTML = '';
-      results.textContent = '';
-      renderNotes([]);
-      instructions.innerHTML =
-        'This experiment contains four distraction conditions. Each condition has six trials measuring how fast you press the <strong>J</strong> key after the screen turns green. Follow the on-screen guidance for each set.';
-      startButton.textContent = 'Begin Experiment';
-      startButton.disabled = false;
-      setBodyState(null);
-    }
-
-    function handleJPress() {
-      if (state === 'waiting') {
-        clearTimeout(waitTimeoutId);
-        waitTimeoutId = null;
-        instructions.innerHTML =
-          'Too soon! Wait for the background to turn green before pressing J. Click the button to restart this set.';
-        stopDistractions();
-        clearTimeout(betweenTimeoutId);
-        betweenTimeoutId = null;
-        startButton.textContent = `Restart Set ${currentSetIndex + 1}`;
-        startButton.disabled = false;
-        phase = 'intro';
-        state = 'idle';
-        trialTimes = [];
-        trialIndex = 0;
-        setBodyState(null);
-        return;
-      }
-
-      if (state !== 'ready') {
-        return;
-      }
-
-      const reactionTime = performance.now() - startTime;
-      trialTimes.push(reactionTime);
-      results.textContent = `Set ${currentSetIndex + 1} · Trial ${trialIndex + 1}: ${reactionTime.toFixed(1)} ms`;
-      setBodyState(null);
-      state = 'between';
-      trialIndex += 1;
-
-      if (trialIndex >= TRIALS_PER_SET) {
-        completeSet();
+      activeSetIndex += 1;
+      if (activeSetIndex < sets.length) {
+        showOverlay();
       } else {
-        betweenTimeoutId = setTimeout(() => {
-          scheduleTrial();
-        }, 1500);
+        const overallText = session.overallAverage != null ? formatTime(session.overallAverage) : '—';
+        statusEl.textContent = `All done! Overall average: ${overallText}.`;
+        retryButton.hidden = false;
       }
-    }
+    };
 
-    function handleFPress() {
-      const config = currentConfig();
-      if (!config.features.letter || !letterVisible) {
-        return;
+    const handleReaction = (event) => {
+      if (event.key.toLowerCase() === 'j') {
+        if (!ready) {
+          statusEl.textContent = 'Too soon! Wait for green before pressing J.';
+          return;
+        }
+        ready = false;
+        document.body.classList.remove('ready');
+        const elapsed = performance.now() - startTime;
+        const setData = session.sets[activeSetIndex];
+        setData.trials[trialIndex] = elapsed;
+        statusEl.textContent = `Reaction recorded: ${formatTime(elapsed)}.`;
+        renderResults();
+        trialIndex += 1;
+        if (trialIndex >= trialsPerSet) {
+          cooldownTimeout = window.setTimeout(finishSet, 900);
+        } else {
+          cooldownTimeout = window.setTimeout(scheduleNextTrial, 900);
+        }
       }
-      hideLetter();
-      scheduleLetter();
-    }
+    };
 
-    function handleSpacePress(event) {
-      const config = currentConfig();
-      if (!config.features.progress) {
-        return;
-      }
-      event.preventDefault();
-      progressValue = Math.max(0, progressValue - 8);
-      updateProgressBar();
-    }
+    const handleKeydown = (event) => {
+      if (event.repeat) return;
+      handleReaction(event);
+      activeDistraction?.onKey?.(event);
+    };
 
-    startButton.addEventListener('click', () => {
-      if (phase === 'idle') {
-        resetExperiment();
-        showSetIntro();
-        return;
-      }
+    const resetExperiment = () => {
+      window.clearTimeout(delayTimeout);
+      window.clearTimeout(cooldownTimeout);
+      activeDistraction?.cleanup?.();
+      activeDistraction = null;
+      document.body.classList.remove('waiting', 'ready', 'rainbow-mode');
+      session.recordedAt = new Date().toISOString();
+      session.sets.forEach((set) => {
+        set.trials = [];
+        set.average = null;
+      });
+      session.overallAverage = null;
+      activeSetIndex = 0;
+      renderResults();
+      retryButton.hidden = true;
+      showOverlay();
+      statusEl.textContent = 'Follow the on-screen instructions to begin.';
+    };
 
-      if (phase === 'intro') {
-        startSet();
-        return;
-      }
-
-      if (phase === 'setComplete') {
-        currentSetIndex += 1;
-        showSetIntro();
-        return;
-      }
-
-      if (phase === 'experimentComplete') {
-        resetExperiment();
-        showSetIntro();
-      }
+    startSetButton.addEventListener('click', () => {
+      beginSet();
     });
 
-    window.addEventListener('keydown', (event) => {
-      const key = event.key.toLowerCase();
-      if (key === 'j') {
-        handleJPress();
-        return;
-      }
-      if (key === 'f') {
-        handleFPress();
-        return;
-      }
-      if (event.code === 'Space') {
-        handleSpacePress(event);
-      }
-    });
+    retryButton.addEventListener('click', resetExperiment);
+    window.addEventListener('keydown', handleKeydown);
 
-    resetExperiment();
+    renderResults();
+    showOverlay();
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker
-          .register('./sw.js')
-          .catch((error) => {
-            console.error('Service worker registration failed:', error);
-          });
+        navigator.serviceWorker.register('sw.js').catch((error) => {
+          console.error('Service worker registration failed', error);
+        });
       });
     }
   </script>
