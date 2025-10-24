@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reaction Time Tester</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #f5f5f5;
+      color: #222;
+      transition: background-color 150ms ease-in-out;
+    }
+
+    body.waiting {
+      background-color: #b22222;
+      color: #fff;
+    }
+
+    body.ready {
+      background-color: #228b22;
+      color: #fff;
+    }
+
+    main {
+      max-width: 720px;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 0.5rem;
+      font-size: clamp(2rem, 4vw, 3rem);
+    }
+
+    p {
+      margin: 0.5rem 0;
+      line-height: 1.5;
+    }
+
+    button {
+      margin-top: 1.5rem;
+      padding: 0.75rem 2rem;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 999px;
+      background-color: #1e90ff;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 120ms ease-in-out;
+    }
+
+    button:hover {
+      background-color: #0f62d6;
+    }
+
+    .results {
+      margin-top: 1.5rem;
+      font-size: 1.1rem;
+    }
+
+    .link-row {
+      margin-top: 2rem;
+      font-size: 0.95rem;
+    }
+
+    a {
+      color: inherit;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Reaction Time Tester</h1>
+    <p id="instructions">
+      Press the <strong>Start Trials</strong> button to begin. After a short delay the screen will turn green.
+      When it does, press the <strong>J</strong> key as quickly as possible. There are five trials in total.
+    </p>
+    <button id="start">Start Trials</button>
+    <div class="results" id="results"></div>
+    <div class="link-row"><a href="data.html">View saved trial data</a></div>
+  </main>
+  <script>
+    const totalTrials = 5;
+    const startButton = document.getElementById('start');
+    const instructions = document.getElementById('instructions');
+    const results = document.getElementById('results');
+
+    let trialTimes = [];
+    let trialIndex = 0;
+    let timeoutId = null;
+    let startTime = null;
+    let state = 'idle';
+
+    const MIN_DELAY = 1000;
+    const MAX_DELAY = 3000;
+
+    function reset() {
+      clearTimeout(timeoutId);
+      trialTimes = [];
+      trialIndex = 0;
+      startTime = null;
+      state = 'idle';
+      document.body.className = '';
+      results.textContent = '';
+      instructions.textContent = 'Press the Start Trials button to begin. After a short delay the screen will turn green. When it does, press the J key as quickly as possible. There are five trials in total.';
+      startButton.disabled = false;
+    }
+
+    function beginTrial() {
+      state = 'waiting';
+      document.body.className = 'waiting';
+      instructions.textContent = `Trial ${trialIndex + 1} of ${totalTrials}: Wait for green, then press J.`;
+      const delay = Math.random() * (MAX_DELAY - MIN_DELAY) + MIN_DELAY;
+      timeoutId = setTimeout(() => {
+        state = 'ready';
+        document.body.className = 'ready';
+        instructions.textContent = `Trial ${trialIndex + 1} of ${totalTrials}: Press J!`;
+        startTime = performance.now();
+      }, delay);
+    }
+
+    function finishTrials() {
+      const average = trialTimes.reduce((sum, value) => sum + value, 0) / trialTimes.length;
+      const averageText = average.toFixed(1);
+      instructions.textContent = `Completed ${totalTrials} trials. Average reaction time: ${averageText} ms.`;
+      results.innerHTML = `Trial times: ${trialTimes.map((t, i) => `Trial ${i + 1}: ${t.toFixed(1)} ms`).join('<br>')}<br><strong>Average: ${averageText} ms</strong>`;
+      document.body.className = '';
+      state = 'done';
+      startButton.disabled = false;
+      const payload = {
+        recordedAt: new Date().toISOString(),
+        trials: trialTimes,
+        average
+      };
+      localStorage.setItem('reactionTimeSession', JSON.stringify(payload));
+    }
+
+    startButton.addEventListener('click', () => {
+      reset();
+      startButton.disabled = true;
+      beginTrial();
+    });
+
+    window.addEventListener('keydown', (event) => {
+      if (event.key.toLowerCase() !== 'j') {
+        return;
+      }
+      if (state === 'waiting') {
+        instructions.textContent = 'Too soon! Wait for the screen to turn green before pressing J. Press Start Trials to try again.';
+        document.body.className = '';
+        startButton.disabled = false;
+        clearTimeout(timeoutId);
+        state = 'idle';
+        trialTimes = [];
+        trialIndex = 0;
+        return;
+      }
+      if (state !== 'ready') {
+        return;
+      }
+      const reactionTime = performance.now() - startTime;
+      trialTimes.push(reactionTime);
+      results.textContent = `Trial ${trialIndex + 1}: ${reactionTime.toFixed(1)} ms`;
+      document.body.className = '';
+      state = 'between';
+      trialIndex += 1;
+      if (trialIndex >= totalTrials) {
+        finishTrials();
+      } else {
+        timeoutId = setTimeout(() => {
+          beginTrial();
+        }, 1500);
+      }
+    });
+  </script>
+</body>
+</html>
